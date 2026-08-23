@@ -15,6 +15,11 @@
         }
 
         /* Complete Removal of Master Topbar, Breadcrumbs & Sidebars for Mobile/Tablet Finanza */
+        nav[aria-label="breadcrumb"],
+        div.d-flex.align-items-center.mt-2.mb-2 {
+            display: none !important;
+        }
+
         @media (max-width: 991.98px) {
             header.app-header,
             #appHeader,

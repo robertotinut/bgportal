@@ -27,7 +27,9 @@
     <main class="app-wrapper">
         <div class="container-fluid">
 
-            @include('partials.page-title')
+            @unless (request()->is('apps/finance*'))
+                @include('partials.page-title')
+            @endunless
 
             @yield('content')
             @include('partials.switcher')
