@@ -15,118 +15,32 @@ use Illuminate\Support\Facades\Log;
 class FinanceController extends Controller
 {
     /**
-     * Ensure default budgets & wallets exist for authenticated user.
+     * Ensure default starter wallet & budget target exist for a newly registered user (Clean Rp 0 balance).
      */
     protected function initUserData()
     {
         $userId = Auth::id();
 
-        // Default Wallets
-        $cash = FinanceWallet::firstOrCreate(
+        // 1 Starter Wallet (Saldo Rp 0)
+        FinanceWallet::firstOrCreate(
             ['user_id' => $userId, 'name' => 'Kas Utama / Cash'],
-            ['type' => 'cash', 'balance' => 3500000, 'color' => '#0d6efd']
-        );
-
-        $bank = FinanceWallet::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'Rekening Bank BCA'],
-            ['type' => 'bank', 'balance' => 15200000, 'color' => '#198754']
-        );
-
-        $ewallet = FinanceWallet::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'E-Wallet (GoPay/OVO)'],
-            ['type' => 'ewallet', 'balance' => 850000, 'color' => '#0dcaf0']
-        );
-
-        // Default Bills
-        FinanceBill::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'Listrik PLN'],
             [
-                'category' => 'Listrik',
-                'amount' => 250000,
-                'due_day' => 20,
-                'status' => 'unpaid',
-                'notes' => 'Tagihan pascabayar PLN',
+                'type' => 'cash',
+                'balance' => 0,
+                'color' => '#0d6efd'
             ]
         );
 
-        FinanceBill::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'Internet & WiFi'],
+        // 1 Starter Budget Target (Target Rp 0, Realisasi Rp 0)
+        FinanceBudget::firstOrCreate(
+            ['user_id' => $userId, 'name' => 'Target Anggaran Utama'],
             [
-                'category' => 'Internet',
-                'amount' => 350000,
-                'due_day' => 15,
-                'status' => 'unpaid',
-                'notes' => 'Langganan bulanan Biznet/Indihome',
-            ]
-        );
-
-        FinanceBill::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'BPJS Kesehatan'],
-            [
-                'category' => 'Asuransi',
-                'amount' => 150000,
-                'due_day' => 10,
-                'status' => 'paid',
-                'last_paid_at' => now()->startOfMonth(),
-                'notes' => 'Iuran BPJS Kelas 1',
-            ]
-        );
-
-        // Default Budget Targets
-        $defaultBudget = FinanceBudget::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'Dana Nikah'],
-            [
-                'target_amount' => 60000000,
-                'collected_amount' => 24400000,
+                'target_amount' => 0,
+                'collected_amount' => 0,
                 'target_date' => now()->addYear(),
                 'status' => 'active',
             ]
         );
-
-        FinanceBudget::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'Budgeting Bulanan'],
-            [
-                'target_amount' => 15000000,
-                'collected_amount' => 8500000,
-                'target_date' => now()->endOfMonth(),
-                'status' => 'active',
-            ]
-        );
-
-        FinanceBudget::firstOrCreate(
-            ['user_id' => $userId, 'name' => 'Pengeluaran Rutin'],
-            [
-                'target_amount' => 10000000,
-                'collected_amount' => 4200000,
-                'target_date' => now()->endOfMonth(),
-                'status' => 'active',
-            ]
-        );
-
-        // Seed Sample Transactions if empty
-        if (FinanceTransaction::where('user_id', $userId)->count() === 0) {
-            $sampleData = [
-                ['contributor_name' => 'Gaji Bulanan', 'type' => 'income', 'amount' => 8500000, 'transaction_date' => '2026-08-01', 'description' => 'Gaji Utama', 'wallet_id' => $bank->id],
-                ['contributor_name' => 'Belanja Bulanan', 'type' => 'expense', 'amount' => 1250000, 'transaction_date' => '2026-08-05', 'description' => 'Supermarket & Bahan Pokok', 'wallet_id' => $cash->id],
-                ['contributor_name' => 'Jessica', 'type' => 'savings', 'amount' => 200000, 'transaction_date' => '2026-08-20', 'description' => 'Tabungan Agustus', 'wallet_id' => $bank->id],
-                ['contributor_name' => 'Rudy', 'type' => 'income', 'amount' => 500000, 'transaction_date' => '2026-08-03', 'description' => 'Freelance Project', 'wallet_id' => $ewallet->id],
-                ['contributor_name' => 'Tagihan Listrik & Wifi', 'type' => 'expense', 'amount' => 650000, 'transaction_date' => '2026-08-10', 'description' => 'Rutin Bulanan', 'wallet_id' => $bank->id],
-            ];
-
-            foreach ($sampleData as $item) {
-                FinanceTransaction::create([
-                    'user_id' => $userId,
-                    'wallet_id' => $item['wallet_id'],
-                    'budget_id' => $defaultBudget->id,
-                    'type' => $item['type'],
-                    'amount' => $item['amount'],
-                    'contributor_name' => $item['contributor_name'],
-                    'category' => ucfirst($item['type']),
-                    'description' => $item['description'],
-                    'transaction_date' => $item['transaction_date'],
-                ]);
-            }
-        }
     }
 
     /**
