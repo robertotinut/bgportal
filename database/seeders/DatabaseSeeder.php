@@ -83,7 +83,19 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Assign access to regular staff user (HRIS, Inventory & POS)
-        $staff->apps()->sync([$hris->id, $inventory->id, $pos->id]);
+        $pinterest = App::updateOrCreate(
+            ['code' => 'pinterest_affiliate'],
+            [
+                'name' => 'Pinterest Affiliate AutoPost',
+                'url' => '/apps/pinterest-affiliate',
+                'icon' => 'bi bi-pinterest',
+                'description' => 'Otomasi Scraping & Auto Post Affiliate Shopee ke Pinterest Multi-Account',
+                'is_active' => true,
+                'sort_order' => 5,
+            ]
+        );
+
+        // Assign access to regular staff user (HRIS, Inventory, POS & Pinterest)
+        $staff->apps()->sync([$hris->id, $inventory->id, $pos->id, $pinterest->id]);
     }
 }

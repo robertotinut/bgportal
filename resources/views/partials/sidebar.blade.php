@@ -45,6 +45,53 @@
                         <span class="pe-nav-content">Manajemen Produk</span>
                     </a>
                 </li>
+            @elseif (request()->is('apps/pinterest-affiliate*'))
+                <!-- Pinterest Affiliate Specific Contextual Sidebar -->
+                <li class="pe-menu-title px-4 py-2">
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-primary btn-sm w-100 fw-bold d-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-arrow-left"></i>
+                        <span>Kembali ke Central</span>
+                    </a>
+                </li>
+
+                <li class="pe-menu-title text-danger fw-bold mt-2">
+                    <i class="bi bi-pinterest me-1"></i> Pinterest Affiliate
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.pinterest.index') }}" class="pe-nav-link {{ request()->routeIs('apps.pinterest.index') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2 pe-nav-icon text-danger"></i>
+                        <span class="pe-nav-content">Dashboard Otomasi</span>
+                    </a>
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.pinterest.links') }}" class="pe-nav-link {{ request()->routeIs('apps.pinterest.links') ? 'active' : '' }}">
+                        <i class="bi bi-link-45deg pe-nav-icon text-danger"></i>
+                        <span class="pe-nav-content">Link Affiliate & Queue</span>
+                    </a>
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.pinterest.accounts') }}" class="pe-nav-link {{ request()->routeIs('apps.pinterest.accounts') ? 'active' : '' }}">
+                        <i class="bi bi-person-badge pe-nav-icon text-danger"></i>
+                        <span class="pe-nav-content">Akun Pinterest</span>
+                    </a>
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.pinterest.settings') }}" class="pe-nav-link {{ request()->routeIs('apps.pinterest.settings') ? 'active' : '' }}">
+                        <i class="bi bi-sliders pe-nav-icon text-danger"></i>
+                        <span class="pe-nav-content">Pengaturan Otomasi</span>
+                    </a>
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.pinterest.logs') }}" class="pe-nav-link {{ request()->routeIs('apps.pinterest.logs') ? 'active' : '' }}">
+                        <i class="bi bi-journal-text pe-nav-icon text-danger"></i>
+                        <span class="pe-nav-content">Log & Riwayat Posting</span>
+                    </a>
+                </li>
             @else
                 <!-- Central Hub Sidebar -->
                 <li class="pe-slide">
