@@ -1,23 +1,20 @@
-<!-- BEGIN Sidebar -->
 <aside class="pe-app-sidebar" id="sidebar">
-    <div class="pe-sidebar-brand-wrapper">
-        <a href="{{ route('dashboard') }}" class="pe-sidebar-brand-link">
-            <img src="{{ asset('assets/images/logo-dark.png') }}" alt="BGPortal Logo" height="30" class="pe-sidebar-logo-default">
-            <img src="{{ asset('assets/images/logo-light.png') }}" alt="BGPortal Logo" height="30" class="pe-sidebar-logo-light d-none">
-            <img src="{{ asset('assets/images/logo-md.png') }}" alt="BGPortal Logo" height="30" class="pe-sidebar-logo-small d-none">
-            <img src="{{ asset('assets/images/logo-md-light.png') }}" alt="BGPortal Logo" height="30" class="pe-sidebar-logo-small-light d-none">
+    <div class="pe-app-sidebar-logo px-6 d-flex align-items-center position-relative">
+        <!--begin::Brand Image-->
+        <a href="{{ route('dashboard') }}" class="fs-18 fw-semibold">
+            <img height="30" class="pe-app-sidebar-logo-default" alt="BGPortal Logo" src="{{ asset('assets/images/logo-dark.png') }}">
+            <img height="30" class="pe-app-sidebar-logo-light d-none" alt="BGPortal Logo" src="{{ asset('assets/images/logo-light.png') }}">
+            <img height="30" class="pe-app-sidebar-logo-minimize d-none" alt="BGPortal Logo" src="{{ asset('assets/images/logo-md.png') }}">
+            <img height="30" class="pe-app-sidebar-logo-minimize-light d-none" alt="BGPortal Logo" src="{{ asset('assets/images/logo-md-light.png') }}">
         </a>
-        <button type="button" class="pe-sidebar-collapse-btn btn btn-light icon-btn fs-5 rounded-pill d-none" id="collapseSidebar">
-            <i class="bi bi-arrow-bar-left"></i>
-        </button>
-    </div>
+        <!--end::Brand Image-->
+    </div> 
+    <nav class="pe-app-sidebar-menu nav nav-pills" data-simplebar id="sidebar-simplebar">
+        <ul class="pe-main-menu list-unstyled">
 
-    <div class="pe-sidebar-content" data-simplebar>
-        <ul class="pe-sidebar-nav">
-
-            <!-- 1. Central Hub -->
-            <li class="pe-nav-header">
-                <span class="pe-nav-header-title">PORTAL CENTRAL</span>
+            <!-- 1. Central Portal -->
+            <li class="pe-menu-title">
+                <span class="pe-menu-title-text text-uppercase">PORTAL CENTRAL</span>
             </li>
 
             <li class="pe-slide">
@@ -28,8 +25,8 @@
             </li>
 
             <!-- 2. Finanza Keuangan -->
-            <li class="pe-nav-header mt-3">
-                <span class="pe-nav-header-title">FINANZA KEGIATAN KAS</span>
+            <li class="pe-menu-title mt-2">
+                <span class="pe-menu-title-text text-uppercase">FINANZA KEGIATAN KAS</span>
             </li>
 
             <li class="pe-slide">
@@ -60,10 +57,10 @@
                 </a>
             </li>
 
-            <!-- 3. Admin Management (Only for Admin) -->
+            <!-- 3. Administrasi Portal (Khusus Admin) -->
             @if (Auth::check() && Auth::user()->isAdmin())
-                <li class="pe-nav-header mt-3">
-                    <span class="pe-nav-header-title">ADMINISTRASI PORTAL</span>
+                <li class="pe-menu-title mt-2">
+                    <span class="pe-menu-title-text text-uppercase">ADMINISTRASI PORTAL</span>
                 </li>
 
                 <li class="pe-slide">
@@ -81,9 +78,9 @@
                 </li>
             @endif
 
-            <!-- 4. User Profile & Account -->
-            <li class="pe-nav-header mt-3">
-                <span class="pe-nav-header-title">PENGATURAN AKUN</span>
+            <!-- 4. Pengaturan Akun -->
+            <li class="pe-menu-title mt-2">
+                <span class="pe-menu-title-text text-uppercase">PENGATURAN AKUN</span>
             </li>
 
             <li class="pe-slide">
@@ -111,7 +108,5 @@
             </li>
 
         </ul>
-    </div>
+    </nav>
 </aside>
-<!-- END Sidebar -->
-<div class="pe-sidebar-overlay" id="sidebarOverlay"></div>
