@@ -317,54 +317,67 @@
                 @endforelse
             </div>
 
-            <!-- 3. Mutasi Transaksi Terbaru -->
+            <!-- 3. Menu Pintasan Cepat (Quick Actions Grid) -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <h5 class="fw-bold mb-0 text-dark fs-16">Mutasi Transaksi Terbaru</h5>
-                <a href="{{ route('apps.finance.reports') }}" class="fs-12 text-primary fw-semibold text-decoration-none btn-nowrap">Lihat Laporan Lengkap &rarr;</a>
+                <h5 class="fw-bold mb-0 text-dark fs-16">Aksi Cepat</h5>
             </div>
 
-            <div class="mb-5">
-                @forelse ($recentTransactions as $t)
-                    <div class="card border shadow-sm rounded-4 p-3 mb-2">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <h6 class="fw-bold mb-0 text-dark fs-14">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
-                                    <span class="badge {{ $t->type === 'expense' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success' }} fs-11">
-                                        {{ $t->type === 'income' ? 'Pemasukan' : ($t->type === 'expense' ? 'Pengeluaran' : 'Tabungan') }}
-                                    </span>
-                                </div>
-                                <div class="fs-12 text-muted mt-1">
-                                    {{ $t->transaction_date ? $t->transaction_date->format('j M Y') : '' }}
-                                    @if ($t->wallet)
-                                        <span class="ms-1">• {{ $t->wallet->name }}</span>
-                                    @endif
-                                    @if ($t->description)
-                                        <span class="ms-1">• {{ $t->description }}</span>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="d-flex align-items-center">
-                                @if ($t->type === 'expense')
-                                    <span class="text-danger fw-bold fs-14 me-3 btn-nowrap">-Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
-                                @else
-                                    <span class="text-success fw-bold fs-14 me-3 btn-nowrap">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
-                                @endif
-
-                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="confirmDelete(event, this, 'Hapus transaksi ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-link text-muted p-0 fs-5" title="Hapus">&times;</button>
-                                </form>
-                            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card border shadow-sm rounded-4 p-3 text-center h-100 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
+                        <div class="avatar-md rounded-circle bg-primary-subtle text-primary mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="bi bi-camera fs-4"></i>
                         </div>
+                        <div class="fw-bold text-dark fs-14">Scan Struk AI</div>
+                        <div class="text-muted fs-11 mt-1">Otomatis baca struk</div>
                     </div>
-                @empty
-                    <div class="card border shadow-sm rounded-4 p-4 text-center text-muted">
-                        Belum ada transaksi tercatat.
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="card border shadow-sm rounded-4 p-3 text-center h-100 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                        <div class="avatar-md rounded-circle bg-success-subtle text-success mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="bi bi-plus-circle fs-4"></i>
+                        </div>
+                        <div class="fw-bold text-dark fs-14">Catat Manual</div>
+                        <div class="text-muted fs-11 mt-1">Pemasukan & Pengeluaran</div>
                     </div>
-                @endforelse
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="card border shadow-sm rounded-4 p-3 text-center h-100 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#transferModal">
+                        <div class="avatar-md rounded-circle bg-info-subtle text-info mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="bi bi-arrow-left-right fs-4"></i>
+                        </div>
+                        <div class="fw-bold text-dark fs-14">Transfer Dana</div>
+                        <div class="text-muted fs-11 mt-1">Pindah saldo antar dompet</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <a href="{{ route('apps.finance.reports') }}" class="card border shadow-sm rounded-4 p-3 text-center h-100 text-decoration-none">
+                        <div class="avatar-md rounded-circle bg-warning-subtle text-warning mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="bi bi-bar-chart-fill fs-4"></i>
+                        </div>
+                        <div class="fw-bold text-dark fs-14">Laporan & Mutasi</div>
+                        <div class="text-muted fs-11 mt-1">Rekapitulasi lengkap &rarr;</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 4. Ringkasan Finansial Singkat -->
+            <div class="card border-0 bg-light rounded-4 p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="fs-12 text-muted fw-semibold text-uppercase">Arus Kas Bersih Bulan Ini</span>
+                        @php($net = $monthlyIncome - $monthlyExpense)
+                        <h4 class="fw-bold {{ $net >= 0 ? 'text-success' : 'text-danger' }} mb-0 mt-1">
+                            {{ $net >= 0 ? '+' : '' }}Rp {{ number_format($net, 0, ',', '.') }}
+                        </h4>
+                    </div>
+                    <a href="{{ route('apps.finance.reports') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                        Lihat Rincian <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
             </div>
 
         </div>
