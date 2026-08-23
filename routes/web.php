@@ -63,6 +63,7 @@ Route::middleware('auth')->prefix('apps/finance')->name('apps.finance.')->group(
     Route::delete('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'destroyTransaction'])->name('transactions.destroy');
     Route::post('/budgets', [\App\Http\Controllers\Apps\FinanceController::class, 'storeBudget'])->name('budgets.store');
     Route::put('/target/{budget}', [\App\Http\Controllers\Apps\FinanceController::class, 'updateTarget'])->name('target.update');
+    Route::delete('/target/{budget}', [\App\Http\Controllers\Apps\FinanceController::class, 'destroyBudget'])->name('target.destroy');
     Route::post('/wallets', [\App\Http\Controllers\Apps\FinanceController::class, 'storeWallet'])->name('wallets.store');
     Route::put('/wallets/{wallet}', [\App\Http\Controllers\Apps\FinanceController::class, 'updateWallet'])->name('wallets.update');
     Route::delete('/wallets/{wallet}', [\App\Http\Controllers\Apps\FinanceController::class, 'destroyWallet'])->name('wallets.destroy');

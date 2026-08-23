@@ -357,6 +357,29 @@ class FinanceController extends Controller
     }
 
     /**
+     * Delete budget target.
+     */
+    public function destroyBudget(FinanceBudget $budget)
+    {
+        if ($budget->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $userId = Auth::id();
+        $count = FinanceBudget::where('user_id', $userId)->count();
+        if ($count <= 1) {
+            return redirect()->back()->with('error', 'Minimal harus ada 1 target anggaran yang aktif!');
+        }
+
+        FinanceTransaction::where('user_id', $userId)->where('budget_id', $budget->id)->delete();
+        $budget->delete();
+
+        $nextBudget = FinanceBudget::where('user_id', $userId)->first();
+        return redirect()->route('apps.finance.budgets', ['budget_id' => $nextBudget->id])
+            ->with('success', "Target anggaran '{$budget->name}' berhasil dihapus!");
+    }
+
+    /**
      * Update transaction.
      */
     public function updateTransaction(Request $request, FinanceTransaction $transaction)

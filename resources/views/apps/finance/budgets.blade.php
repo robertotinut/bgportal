@@ -18,6 +18,22 @@
             display: none !important;
         }
 
+        /* Prevent button text wrapping into multi-lines */
+        .btn-nowrap {
+            white-space: nowrap !important;
+            flex-shrink: 0;
+        }
+
+        .action-dot-btn {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+        }
+
         /* Mobile Adjustments */
         @media (max-width: 991.98px) {
             header.app-header,
@@ -91,9 +107,9 @@
         }
 
         .nav-pill-fabkin .nav-link.active {
-            background-color: #0d6efd;
+            background-color: #f06548;
             color: #FFFFFF;
-            box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
+            box-shadow: 0 2px 8px rgba(240, 101, 72, 0.25);
         }
 
         /* Mobile Fixed Bottom Navigation Bar */
@@ -127,7 +143,7 @@
         }
 
         .finanza-mobile-bottom-nav .nav-item-link.active {
-            color: #0d6efd;
+            color: #f06548;
             font-weight: 700;
         }
 
@@ -140,26 +156,55 @@
     <div class="finanza-container p-2 p-md-3">
         <div class="container-fluid max-w-1000px mx-auto px-0 px-md-3">
 
-            <!-- Clean App Header -->
-            <div class="d-flex align-items-center justify-content-between mb-4">
+            <!-- Clean App Header (Optimized for Mobile & Desktop) -->
+            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
-                    <h4 class="fw-bold mb-1 text-dark">Target Anggaran & Tabungan</h4>
-                    <p class="text-muted fs-13 mb-0">Pantau pencapaian target tabungan impian Anda</p>
+                    <h4 class="fw-bold mb-0 text-dark">Target Anggaran</h4>
+                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Pantau pencapaian target tabungan impian Anda</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline-primary btn-sm rounded-pill fw-semibold" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 btn-nowrap fw-semibold fs-12" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
                         <i class="bi bi-plus-lg me-1"></i> Target Baru
                     </button>
-                    <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#editTargetModal">
-                        <i class="bi bi-three-dots-vertical"></i>
-                    </button>
+                    
+                    <!-- Actions Dropdown for Active Budget -->
+                    <div class="dropdown">
+                        <button class="btn btn-light action-dot-btn text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-3">
+                            <li>
+                                <button type="button" class="dropdown-item fs-13" data-bs-toggle="modal" data-bs-target="#editTargetModal">
+                                    <i class="bi bi-pencil me-2 text-primary"></i> Edit Target Anggaran
+                                </button>
+                            </li>
+                            @if ($budgets->count() > 1)
+                                <li>
+                                    <form action="{{ route('apps.finance.target.destroy', $activeBudget->id) }}" method="POST" onsubmit="return confirm('Hapus target anggaran \'{{ $activeBudget->name }}\' beserta seluruh riwayatnya?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item fs-13 text-danger">
+                                            <i class="bi bi-trash me-2"></i> Hapus Target Anggaran
+                                        </button>
+                                    </form>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
                 </div>
             </div>
 
-            <!-- Success Alert -->
+            <!-- Success / Error Alert -->
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4 border-0 rounded-4 shadow-sm" role="alert">
+                <div class="alert alert-success alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i> {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -171,7 +216,7 @@
                         <div class="position-relative d-inline-flex align-items-center justify-content-center flex-shrink-0">
                             <svg width="75" height="75" viewBox="0 0 36 36" class="circular-chart">
                                 <path class="circle-bg" stroke="#E9ECEF" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path class="circle" stroke="#0d6efd" stroke-linecap="round" stroke-dasharray="{{ $percentage }}, 100" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke="#f06548" stroke-linecap="round" stroke-dasharray="{{ $percentage }}, 100" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                             </svg>
                             <span class="position-absolute fs-13 fw-bold text-dark">{{ $percentage }}%</span>
                         </div>
@@ -192,7 +237,7 @@
                 </div>
             </div>
 
-            <!-- 2. Navigation Category / Budget Tabs -->
+            <!-- 2. Navigation Category / Budget Tabs (Horizontal Scroll) -->
             <div class="d-flex justify-content-start mb-4 overflow-auto pb-1">
                 <ul class="nav nav-pill-fabkin">
                     @foreach ($budgets as $b)
@@ -217,8 +262,8 @@
                         <div class="fs-13 opacity-75 mb-1">Dana terkumpul (Net)</div>
                         <h2 class="fw-bold mb-0 text-white fs-28">Rp {{ number_format($activeBudget->collected_amount, 0, ',', '.') }}</h2>
                     </div>
-                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill fw-semibold" data-bs-toggle="modal" data-bs-target="#editTargetModal">
-                        Atur target
+                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill fw-semibold btn-nowrap" data-bs-toggle="modal" data-bs-target="#editTargetModal">
+                        <i class="bi bi-pencil me-1"></i> Atur Target
                     </button>
                 </div>
 
@@ -238,23 +283,23 @@
                     <div class="col-6">
                         <div class="bg-white text-dark rounded-3 p-3">
                             <div class="fs-12 text-muted mb-1">Masih dibutuhkan</div>
-                            <div class="fw-bold fs-15">Rp {{ number_format($remainingAmount / 1000000, 1) }}jt</div>
+                            <div class="fw-bold fs-15 text-dark">Rp {{ number_format($remainingAmount / 1000000, 1) }}jt</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="bg-white text-dark rounded-3 p-3">
                             <div class="fs-12 text-muted mb-1">Saran per bulan</div>
-                            <div class="fw-bold fs-15">Rp {{ number_format($monthlySuggestion / 1000000, 1) }}jt</div>
+                            <div class="fw-bold fs-15 text-dark">Rp {{ number_format($monthlySuggestion / 1000000, 1) }}jt</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 4. Riwayat Tabungan Target Section -->
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h5 class="fw-bold mb-0 text-dark">Riwayat Tabungan</h5>
-                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                    + Catat Setoran
+            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                <h5 class="fw-bold mb-0 text-dark fs-16">Riwayat Tabungan</h5>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 py-1 btn-nowrap fw-semibold fs-12 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    <i class="bi bi-plus-lg me-1"></i> Catat
                 </button>
             </div>
 
@@ -263,7 +308,7 @@
                     <div class="card border shadow-sm rounded-4 p-3 mb-2">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h6 class="fw-bold mb-1 text-dark fs-15">{{ $t->contributor_name ?? 'Tabungan' }}</h6>
+                                <h6 class="fw-bold mb-1 text-dark fs-14">{{ $t->contributor_name ?? 'Tabungan' }}</h6>
                                 <div class="fs-12 text-muted">
                                     {{ $t->transaction_date ? $t->transaction_date->format('j M Y') : '' }} 
                                     @if ($t->description)
@@ -273,7 +318,7 @@
                             </div>
 
                             <div class="d-flex align-items-center">
-                                <span class="text-success fw-bold fs-15 me-3">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
+                                <span class="text-success fw-bold fs-14 me-3 btn-nowrap">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
                                 
                                 <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pencatatan ini?')">
                                     @csrf
@@ -386,7 +431,7 @@
         </div>
     </div>
 
-    <!-- Modal Atur Target Active -->
+    <!-- Modal Edit / Atur Target Active -->
     <div class="modal fade" id="editTargetModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow">
@@ -394,7 +439,7 @@
                     @csrf
                     @method('PUT')
                     <div class="modal-header border-bottom-0 pb-0">
-                        <h5 class="modal-title fw-bold">Atur Target Anggaran</h5>
+                        <h5 class="modal-title fw-bold">Edit Target Anggaran</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
@@ -407,11 +452,29 @@
                             <input type="number" name="target_amount" class="form-control rounded-3" value="{{ $activeBudget->target_amount }}" min="100000" required>
                         </div>
                     </div>
-                    <div class="modal-footer border-top-0 pt-0">
-                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Target</button>
+                    <div class="modal-footer border-top-0 pt-0 d-flex justify-content-between">
+                        @if ($budgets->count() > 1)
+                            <button type="button" class="btn btn-outline-danger rounded-pill px-3" onclick="if(confirm('Hapus target anggaran ini beserta seluruh riwayatnya?')) { document.getElementById('deleteTargetForm').submit(); }">
+                                <i class="bi bi-trash me-1"></i> Hapus Target
+                            </button>
+                        @else
+                            <div></div>
+                        @endif
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Target</button>
+                        </div>
                     </div>
                 </form>
+
+                <!-- Hidden Delete Form -->
+                @if ($budgets->count() > 1)
+                    <form id="deleteTargetForm" action="{{ route('apps.finance.target.destroy', $activeBudget->id) }}" method="POST" class="d-none">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endif
             </div>
         </div>
     </div>
