@@ -287,7 +287,7 @@
                                     <span class="text-success fw-bold fs-14 me-3 btn-nowrap">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
                                 @endif
 
-                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus transaksi ini?')">
+                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="confirmDelete(event, this, 'Hapus catatan transaksi ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-link text-muted p-0 fs-5" title="Hapus">&times;</button>
@@ -357,5 +357,47 @@
 @endsection
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 2500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Perhatian!',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#f06548'
+            });
+        @endif
+
+        function confirmDelete(event, form, message = 'Data yang dihapus tidak dapat dikembalikan!') {
+            if (event) event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f06548',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
 @endsection

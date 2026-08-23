@@ -161,6 +161,61 @@ class FinanceController extends Controller
     }
 
     /**
+     * Transfer funds between wallets / accounts.
+     */
+    public function transferWallet(Request $request)
+    {
+        $request->validate([
+            'from_wallet_id' => 'required|exists:finance_wallets,id',
+            'to_wallet_id' => 'required|exists:finance_wallets,id|different:from_wallet_id',
+            'amount' => 'required|numeric|min:1000',
+            'transaction_date' => 'required|date',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $userId = Auth::id();
+        $fromWallet = FinanceWallet::where('user_id', $userId)->findOrFail($request->from_wallet_id);
+        $toWallet = FinanceWallet::where('user_id', $userId)->findOrFail($request->to_wallet_id);
+
+        if ($fromWallet->balance < $request->amount) {
+            return redirect()->back()->with('error', "Saldo pada dompet '{$fromWallet->name}' tidak mencukupi untuk transfer!");
+        }
+
+        // Deduct from source
+        $fromWallet->balance -= $request->amount;
+        $fromWallet->save();
+
+        // Add to destination
+        $toWallet->balance += $request->amount;
+        $toWallet->save();
+
+        // Create transaction logs
+        FinanceTransaction::create([
+            'user_id' => $userId,
+            'wallet_id' => $fromWallet->id,
+            'type' => 'expense',
+            'amount' => $request->amount,
+            'contributor_name' => "Transfer ke {$toWallet->name}",
+            'category' => 'Transfer',
+            'description' => $request->description ?: "Transfer dana dari {$fromWallet->name} ke {$toWallet->name}",
+            'transaction_date' => $request->transaction_date,
+        ]);
+
+        FinanceTransaction::create([
+            'user_id' => $userId,
+            'wallet_id' => $toWallet->id,
+            'type' => 'income',
+            'amount' => $request->amount,
+            'contributor_name' => "Transfer dari {$fromWallet->name}",
+            'category' => 'Transfer',
+            'description' => $request->description ?: "Transfer dana masuk dari {$fromWallet->name}",
+            'transaction_date' => $request->transaction_date,
+        ]);
+
+        return redirect()->back()->with('success', "Transfer sebesar Rp " . number_format($request->amount, 0, ',', '.') . " berhasil dilakukan!");
+    }
+
+    /**
      * Update Wallet / Rekening.
      */
     public function updateWallet(Request $request, FinanceWallet $wallet)

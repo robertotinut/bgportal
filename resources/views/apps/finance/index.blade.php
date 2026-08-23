@@ -18,7 +18,6 @@
             display: none !important;
         }
 
-        /* Prevent button text wrapping into multi-lines */
         .btn-nowrap {
             white-space: nowrap !important;
             flex-shrink: 0;
@@ -110,7 +109,7 @@
             }
         }
 
-        /* Mobile Fixed Bottom Navigation Bar */
+        /* Mobile Fixed Bottom Navigation Bar (With Center Raised Action Button) */
         .finanza-mobile-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -180,7 +179,7 @@
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark">Beranda Keuangan</h4>
-                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Kelola saldo, dompet, dan pencatatan transaksi Anda</p>
+                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Kelola saldo, dompet, dan mutasi keuangan Anda</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-outline-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
@@ -191,14 +190,6 @@
                     </button>
                 </div>
             </div>
-
-            <!-- Success Alert -->
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
 
             <!-- 1. Master Total Saldo Card (Fabkin Template Primary Accent) -->
             <div class="card bg-primary text-white rounded-4 border-0 shadow-sm p-4 mb-4">
@@ -220,12 +211,19 @@
                 </div>
             </div>
 
-            <!-- 2. Rekening & Dompet Section (With Full CRUD: Add, Edit, Delete) -->
+            <!-- 2. Rekening & Dompet Section (With Full CRUD + Transfer Feature) -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <h5 class="fw-bold mb-0 text-dark fs-16">Rekening & Dompet</h5>
-                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 btn-nowrap fw-semibold fs-12" data-bs-toggle="modal" data-bs-target="#addWalletModal">
-                    <i class="bi bi-plus-lg me-1"></i> Tambah
-                </button>
+                <div class="d-flex align-items-center gap-2">
+                    @if ($wallets->count() >= 2)
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 btn-nowrap fw-semibold fs-12" data-bs-toggle="modal" data-bs-target="#transferModal">
+                            <i class="bi bi-arrow-left-right me-1"></i> Transfer
+                        </button>
+                    @endif
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 btn-nowrap fw-semibold fs-12" data-bs-toggle="modal" data-bs-target="#addWalletModal">
+                        <i class="bi bi-plus-lg me-1"></i> Tambah
+                    </button>
+                </div>
             </div>
 
             <div class="row g-3 mb-4">
@@ -255,7 +253,7 @@
                                             </button>
                                         </li>
                                         <li>
-                                            <form action="{{ route('apps.finance.wallets.destroy', $w->id) }}" method="POST" onsubmit="return confirm('Hapus rekening/dompet ini?')">
+                                            <form action="{{ route('apps.finance.wallets.destroy', $w->id) }}" method="POST" onsubmit="confirmDelete(event, this, 'Hapus dompet {{ $w->name }}?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item fs-13 text-danger">
@@ -319,10 +317,10 @@
                 @endforelse
             </div>
 
-            <!-- 3. Mutasi Transaksi Terbaru (Pemasukan, Pengeluaran, Tabungan) -->
+            <!-- 3. Mutasi Transaksi Terbaru -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <h5 class="fw-bold mb-0 text-dark fs-16">Mutasi Transaksi Terbaru</h5>
-                <a href="{{ route('apps.finance.budgets') }}" class="fs-12 text-primary fw-semibold text-decoration-none btn-nowrap">Lihat Anggaran Target &rarr;</a>
+                <a href="{{ route('apps.finance.reports') }}" class="fs-12 text-primary fw-semibold text-decoration-none btn-nowrap">Lihat Laporan Lengkap &rarr;</a>
             </div>
 
             <div class="mb-5">
@@ -354,7 +352,7 @@
                                     <span class="text-success fw-bold fs-14 me-3 btn-nowrap">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
                                 @endif
 
-                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus transaksi ini?')">
+                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="confirmDelete(event, this, 'Hapus transaksi ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-link text-muted p-0 fs-5" title="Hapus">&times;</button>
@@ -398,7 +396,56 @@
         </a>
     </div>
 
-    <!-- Modal Catat Transaksi Manual (Pemasukan, Pengeluaran, Tabungan) -->
+    <!-- Modal Transfer Antar Rekening -->
+    <div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <form action="{{ route('apps.finance.wallets.transfer') }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h5 class="modal-title fw-bold"><i class="bi bi-arrow-left-right text-primary me-1"></i> Transfer Antar Rekening</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Dari Rekening / Dompet <span class="text-danger">*</span></label>
+                            <select name="from_wallet_id" class="form-select rounded-3" required>
+                                @foreach ($wallets as $w)
+                                    <option value="{{ $w->id }}">{{ $w->name }} (Saldo: Rp {{ number_format($w->balance, 0, ',', '.') }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ke Rekening / Dompet Tujuan <span class="text-danger">*</span></label>
+                            <select name="to_wallet_id" class="form-select rounded-3" required>
+                                @foreach ($wallets as $idx => $w)
+                                    <option value="{{ $w->id }}" {{ $idx === 1 ? 'selected' : '' }}>{{ $w->name }} (Saldo: Rp {{ number_format($w->balance, 0, ',', '.') }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nominal Transfer Rp <span class="text-danger">*</span></label>
+                            <input type="number" name="amount" class="form-control rounded-3" placeholder="Contoh: 200000" min="1000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tanggal Transfer <span class="text-danger">*</span></label>
+                            <input type="date" name="transaction_date" class="form-control rounded-3" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Catatan</label>
+                            <input type="text" name="description" class="form-control rounded-3" placeholder="Contoh: Topup GoPay dari BCA">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Proses Transfer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Catat Transaksi Manual -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow">
@@ -468,7 +515,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p class="text-muted fs-13 mb-3">Foto atau upload gambar struk belanjaan Anda. AI akan otomatis mengekstrak total nominal, tanggal, dan rincian barang.</p>
+                    <p class="text-muted fs-13 mb-3">Foto atau upload gambar struk belanjaan Anda. AI akan otomatis membaca nominal, tanggal, dan rincian barang.</p>
 
                     <!-- Dropzone -->
                     <div class="scan-dropzone mb-3" onclick="document.getElementById('receiptImageInput').click();">
@@ -589,8 +636,50 @@
 @endsection
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
+        // SweetAlert Flash Notifications
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 2500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Perhatian!',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#f06548'
+            });
+        @endif
+
+        function confirmDelete(event, form, message = 'Data yang dihapus tidak dapat dikembalikan!') {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f06548',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+
         function toggleTransactionTarget() {
             const type = document.getElementById('trxType').value;
             const budgetDiv = document.getElementById('budgetSelectDiv');
@@ -638,13 +727,33 @@
                         document.getElementById('aiDesc').value = desc;
 
                         document.getElementById('scanResultArea').classList.remove('d-none');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Struk Berhasil Dibaca!',
+                            text: 'Total: Rp ' + parseInt(d.amount).toLocaleString('id-ID'),
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
                     } else {
-                        alert(data.message || 'Gagal menganalisis struk. Silakan masukkan data manual.');
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Gagal Membaca Struk',
+                            text: data.message || 'Silakan masukkan rincian secara manual.',
+                            confirmButtonColor: '#f06548'
+                        });
                     }
                 })
                 .catch(err => {
                     document.getElementById('scanLoading').classList.add('d-none');
-                    alert('Gagal menghubungi server untuk analisis struk.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Koneksi Gagal',
+                        text: 'Gagal menghubungi server untuk analisis struk.',
+                        confirmButtonColor: '#f06548'
+                    });
                 });
             }
         }

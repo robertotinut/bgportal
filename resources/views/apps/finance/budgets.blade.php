@@ -18,7 +18,6 @@
             display: none !important;
         }
 
-        /* Prevent button text wrapping into multi-lines */
         .btn-nowrap {
             white-space: nowrap !important;
             flex-shrink: 0;
@@ -178,7 +177,7 @@
     <div class="finanza-container p-2 p-md-3">
         <div class="container-fluid max-w-1000px mx-auto px-0 px-md-3">
 
-            <!-- Clean App Header (Optimized for Mobile & Desktop) -->
+            <!-- Clean App Header -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark">Target Anggaran</h4>
@@ -202,7 +201,7 @@
                             </li>
                             @if ($budgets->count() > 1)
                                 <li>
-                                    <form action="{{ route('apps.finance.target.destroy', $activeBudget->id) }}" method="POST" onsubmit="return confirm('Hapus target anggaran \'{{ $activeBudget->name }}\' beserta seluruh riwayatnya?')">
+                                    <form action="{{ route('apps.finance.target.destroy', $activeBudget->id) }}" method="POST" onsubmit="confirmDelete(event, this, 'Hapus target anggaran {{ $activeBudget->name }} beserta seluruh riwayatnya?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="dropdown-item fs-13 text-danger">
@@ -215,21 +214,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Success / Error Alert -->
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
-                    <i class="bi bi-exclamation-circle-fill me-2"></i> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
 
             <!-- 1. Top Donut Summary Card -->
             <div class="card border shadow-sm rounded-4 p-4 mb-4">
@@ -342,7 +326,7 @@
                             <div class="d-flex align-items-center">
                                 <span class="text-success fw-bold fs-14 me-3 btn-nowrap">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
                                 
-                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pencatatan ini?')">
+                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="confirmDelete(event, this, 'Hapus transaksi tabungan ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-link text-muted p-0 fs-5" title="Hapus">&times;</button>
@@ -482,7 +466,7 @@
                     </div>
                     <div class="modal-footer border-top-0 pt-0 d-flex justify-content-between">
                         @if ($budgets->count() > 1)
-                            <button type="button" class="btn btn-outline-danger rounded-pill px-3" onclick="if(confirm('Hapus target anggaran ini beserta seluruh riwayatnya?')) { document.getElementById('deleteTargetForm').submit(); }">
+                            <button type="button" class="btn btn-outline-danger rounded-pill px-3" onclick="confirmDelete(event, document.getElementById('deleteTargetForm'), 'Hapus target anggaran ini beserta seluruh riwayatnya?')">
                                 <i class="bi bi-trash me-1"></i> Hapus Target
                             </button>
                         @else
@@ -532,5 +516,47 @@
 @endsection
 
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 2500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Perhatian!',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#f06548'
+            });
+        @endif
+
+        function confirmDelete(event, form, message = 'Data yang dihapus tidak dapat dikembalikan!') {
+            if (event) event.preventDefault();
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f06548',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
 @endsection
