@@ -8,6 +8,8 @@ use App\Models\FinanceTransaction;
 use App\Models\FinanceWallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FinanceController extends Controller
 {
@@ -333,6 +335,96 @@ class FinanceController extends Controller
 
         $typeText = $request->type === 'income' ? 'Pemasukan' : ($request->type === 'expense' ? 'Pengeluaran' : 'Tabungan');
         return redirect()->back()->with('success', "Catatan {$typeText} berhasil ditambahkan!");
+    }
+
+    /**
+     * AI Scan Struk Vision Analysis.
+     */
+    public function analyzeReceipt(Request $request)
+    {
+        $request->validate([
+            'receipt_image' => 'required|image|max:5120', // max 5MB
+        ]);
+
+        try {
+            $file = $request->file('receipt_image');
+            $imageContent = file_get_contents($file->getRealPath());
+            $base64 = base64_encode($imageContent);
+            $mime = $file->getClientMimeType();
+
+            $apiKey = env('SUMOPOD_API_KEY');
+            $baseUrl = env('SUMOPOD_BASE_URL', 'https://ai.sumopod.com/v1');
+            $model = env('SUMOPOD_MODEL', 'MiniMax-M3');
+
+            $prompt = "Tolong analisis struk belanja ini. Ekstrak informasi berikut dan JANGAN menambahkan teks apapun selain format JSON murni yang divalidasi. 
+Kembalikan HANYA JSON object dengan format persis seperti ini:
+{
+    \"amount\": 150000, 
+    \"date\": \"YYYY-MM-DD\",
+    \"category\": \"Nama Kategori\",
+    \"description\": \"Nama Toko\\n- Item 1 (Harga)\\n- Item 2 (Harga)\"
+}
+Perhatikan:
+- 'amount' harus berupa angka bulat (integer) murni tanpa titik atau koma, mewakili total pembayaran.
+- 'date' harus format YYYY-MM-DD. Jika tidak terbaca, gunakan tanggal hari ini (" . date('Y-m-d') . ").
+- 'category' tebak dari opsi ini: Makan & Minum, Transportasi, Belanja, Tagihan & Utilitas, Hiburan, atau Lainnya.
+- 'description' tulis nama toko di baris pertama, lalu rincikan SEMUA item yang dibeli di baris-baris berikutnya menggunakan bullet list (-).";
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(60)->post($baseUrl . '/chat/completions', [
+                'model' => $model,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => [
+                            ['type' => 'text', 'text' => $prompt],
+                            ['type' => 'image_url', 'image_url' => ['url' => "data:{$mime};base64,{$base64}"]]
+                        ]
+                    ]
+                ],
+                'max_tokens' => 500,
+                'temperature' => 0.1
+            ]);
+
+            if ($response->successful()) {
+                $responseBody = $response->json();
+                $aiContent = $responseBody['choices'][0]['message']['content'] ?? '';
+                
+                // Clean markdown code blocks & think tags
+                $aiContent = preg_replace('/<think>.*?<\/think>/s', '', $aiContent);
+                $aiContent = preg_replace('/```json\s*(.*?)\s*```/s', '$1', $aiContent);
+                $aiContent = preg_replace('/```\s*(.*?)\s*```/s', '$1', $aiContent);
+
+                if (preg_match('/\{[^{}]*"amount"[^{}]*\}/s', $aiContent, $matches)) {
+                    $aiContent = $matches[0];
+                } elseif (preg_match('/\{.*\}/s', $aiContent, $matches)) {
+                    $aiContent = $matches[0];
+                }
+
+                $extractedData = json_decode(trim($aiContent), true);
+
+                if ($extractedData && isset($extractedData['amount'])) {
+                    return response()->json([
+                        'status' => 'success',
+                        'data' => $extractedData,
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal membaca rincian struk otomatis. Silakan masukkan secara manual.',
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('AI Receipt Scan Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan sistem saat menganalisis struk: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

@@ -44,6 +44,20 @@
             flex-shrink: 0;
         }
 
+        .scan-dropzone {
+            border: 2px dashed #CBD5E1;
+            border-radius: 16px;
+            background-color: #F8FAFC;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .scan-dropzone:hover {
+            border-color: #f06548;
+            background-color: #FFF5F3;
+        }
+
         /* Mobile Adjustments */
         @media (max-width: 991.98px) {
             header.app-header,
@@ -140,15 +154,20 @@
     <div class="finanza-container p-2 p-md-3">
         <div class="container-fluid max-w-1000px mx-auto px-0 px-md-3">
 
-            <!-- Clean Top App Header (Optimized for Mobile & Desktop) -->
+            <!-- Clean Top App Header -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark">Beranda Keuangan</h4>
                     <p class="text-muted fs-12 mb-0 d-none d-sm-block">Kelola saldo, dompet, dan pencatatan transaksi Anda</p>
                 </div>
-                <button type="button" class="btn btn-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                    <i class="bi bi-plus-lg me-1"></i> Catat
-                </button>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
+                        <i class="bi bi-camera me-1"></i> Scan Struk AI
+                    </button>
+                    <button type="button" class="btn btn-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                        <i class="bi bi-plus-lg me-1"></i> Catat
+                    </button>
+                </div>
             </div>
 
             <!-- Success Alert -->
@@ -278,7 +297,7 @@
                 @endforelse
             </div>
 
-            <!-- 3. Mutasi Transaksi Terbaru -->
+            <!-- 3. Mutasi Transaksi Terbaru (Pemasukan, Pengeluaran, Tabungan) -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <h5 class="fw-bold mb-0 text-dark fs-16">Mutasi Transaksi Terbaru</h5>
                 <a href="{{ route('apps.finance.budgets') }}" class="fs-12 text-primary fw-semibold text-decoration-none btn-nowrap">Lihat Anggaran Target &rarr;</a>
@@ -331,15 +350,15 @@
         </div>
     </div>
 
-    <!-- Mobile Fixed Bottom Navigation Bar (Hidden on Desktop) -->
+    <!-- Mobile Fixed Bottom Navigation Bar -->
     <div class="finanza-mobile-bottom-nav">
         <a href="{{ route('apps.finance.index') }}" class="nav-item-link active">
             <i class="bi bi-house-door-fill"></i>
             <span>Beranda</span>
         </a>
-        <a href="#" class="nav-item-link" onclick="alert('Fitur Checklist/Catatan Keuangan segera hadir!'); return false;">
-            <i class="bi bi-sliders"></i>
-            <span>Checklist</span>
+        <a href="#" class="nav-item-link" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
+            <i class="bi bi-camera"></i>
+            <span>Scan Struk</span>
         </a>
         <a href="{{ route('apps.finance.budgets') }}" class="nav-item-link">
             <i class="bi bi-wallet2"></i>
@@ -349,6 +368,134 @@
             <i class="bi bi-person"></i>
             <span>Profil</span>
         </a>
+    </div>
+
+    <!-- Modal Catat Transaksi Manual (Pemasukan, Pengeluaran, Tabungan) -->
+    <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <form action="{{ route('apps.finance.transactions.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h5 class="modal-title fw-bold">+ Catat Transaksi Baru</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Jenis Transaksi <span class="text-danger">*</span></label>
+                            <select name="type" id="trxType" class="form-select rounded-3" required onchange="toggleTransactionTarget()">
+                                <option value="income" selected>📈 Pemasukan (Income)</option>
+                                <option value="expense">📉 Pengeluaran (Expense)</option>
+                                <option value="savings">💰 Tabungan / Target Anggaran</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Pilih Dompet / Rekening</label>
+                            <select name="wallet_id" id="trxWallet" class="form-select rounded-3">
+                                @foreach ($wallets as $w)
+                                    <option value="{{ $w->id }}">{{ $w->name }} (Saldo: Rp {{ number_format($w->balance, 0, ',', '.') }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3" id="budgetSelectDiv" style="display: none;">
+                            <label class="form-label fw-semibold">Masuk ke Target Anggaran</label>
+                            <select name="budget_id" class="form-select rounded-3">
+                                @foreach ($budgets as $b)
+                                    <option value="{{ $b->id }}">{{ $b->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nama Transaksi / Sumber <span class="text-danger">*</span></label>
+                            <input type="text" name="contributor_name" id="trxName" class="form-control rounded-3" placeholder="Contoh: Gaji, Belanja Supermarket, Freelance" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nominal Rp <span class="text-danger">*</span></label>
+                            <input type="number" name="amount" id="trxAmount" class="form-control rounded-3" placeholder="Contoh: 500000" min="1000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tanggal Transaksi <span class="text-danger">*</span></label>
+                            <input type="date" name="transaction_date" id="trxDate" class="form-control rounded-3" value="{{ date('Y-m-d') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Catatan / Keterangan</label>
+                            <input type="text" name="description" id="trxDesc" class="form-control rounded-3" placeholder="Contoh: Pembelian bulanan">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Transaksi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal AI Scan Struk Vision -->
+    <div class="modal fade" id="scanReceiptModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-camera me-1 text-primary"></i> Scan Struk Belanja (AI Vision)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted fs-13 mb-3">Foto atau upload gambar struk belanjaan Anda. AI akan otomatis mengekstrak total nominal, tanggal, dan rincian barang.</p>
+
+                    <!-- Dropzone -->
+                    <div class="scan-dropzone mb-3" onclick="document.getElementById('receiptImageInput').click();">
+                        <input type="file" id="receiptImageInput" accept="image/*" class="d-none" onchange="handleReceiptFile(this)">
+                        <i class="bi bi-cloud-arrow-up fs-1 text-primary mb-2 d-block"></i>
+                        <span class="fw-semibold text-dark d-block">Klik untuk ambil foto / upload struk</span>
+                        <span class="text-muted fs-12">Format JPG, PNG (Maks 5MB)</span>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="scanLoading" class="text-center p-3 d-none">
+                        <div class="spinner-border text-primary mb-2" role="status"></div>
+                        <p class="fw-semibold text-dark mb-0 fs-13">AI sedang membaca struk Anda...</p>
+                    </div>
+
+                    <!-- Scan Result Form -->
+                    <div id="scanResultArea" class="d-none">
+                        <div class="alert alert-success border-0 rounded-3 p-2 fs-12 mb-3">
+                            <i class="bi bi-check-circle-fill me-1"></i> Struk berhasil dianalisis oleh AI! Silakan periksa & simpan.
+                        </div>
+                        <form action="{{ route('apps.finance.transactions.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="type" value="expense">
+                            <div class="mb-2">
+                                <label class="form-label fs-12 fw-semibold mb-1">Pilih Dompet Pemotongan</label>
+                                <select name="wallet_id" class="form-select form-select-sm rounded-3">
+                                    @foreach ($wallets as $w)
+                                        <option value="{{ $w->id }}">{{ $w->name }} (Rp {{ number_format($w->balance, 0, ',', '.') }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fs-12 fw-semibold mb-1">Nama Toko / Pengeluaran</label>
+                                <input type="text" name="contributor_name" id="aiStoreName" class="form-control form-control-sm rounded-3" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fs-12 fw-semibold mb-1">Total Pengeluaran Rp</label>
+                                <input type="number" name="amount" id="aiAmount" class="form-control form-control-sm rounded-3" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fs-12 fw-semibold mb-1">Tanggal</label>
+                                <input type="date" name="transaction_date" id="aiDate" class="form-control form-control-sm rounded-3" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fs-12 fw-semibold mb-1">Rincian Barang</label>
+                                <textarea name="description" id="aiDesc" class="form-control form-control-sm rounded-3" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+                                Simpan Transaksi dari Struk
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal Tambah Wallet Baru -->
@@ -389,59 +536,6 @@
         </div>
     </div>
 
-    <!-- Modal Catat Transaksi Baru -->
-    <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 border-0 shadow">
-                <form action="{{ route('apps.finance.transactions.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header border-bottom-0 pb-0">
-                        <h5 class="modal-title fw-bold">+ Catat Transaksi Baru</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Jenis Transaksi <span class="text-danger">*</span></label>
-                            <select name="type" class="form-select rounded-3" required>
-                                <option value="income" selected>📈 Pemasukan (Income)</option>
-                                <option value="expense">📉 Pengeluaran (Expense)</option>
-                                <option value="savings">💰 Tabungan / Target Anggaran</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Pilih Dompet / Rekening</label>
-                            <select name="wallet_id" class="form-select rounded-3">
-                                @foreach ($wallets as $w)
-                                    <option value="{{ $w->id }}">{{ $w->name }} (Saldo: Rp {{ number_format($w->balance, 0, ',', '.') }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Nama Transaksi / Sumber <span class="text-danger">*</span></label>
-                            <input type="text" name="contributor_name" class="form-control rounded-3" placeholder="Contoh: Gaji, Belanja Supermarket, Freelance" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Nominal Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" class="form-control rounded-3" placeholder="Contoh: 500000" min="1000" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Tanggal Transaksi <span class="text-danger">*</span></label>
-                            <input type="date" name="transaction_date" class="form-control rounded-3" value="{{ date('Y-m-d') }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Catatan / Keterangan</label>
-                            <input type="text" name="description" class="form-control rounded-3" placeholder="Contoh: Pembelian bulanan">
-                        </div>
-                    </div>
-                    <div class="modal-footer border-top-0 pt-0">
-                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Transaksi</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal Profile & Kembali ke Central -->
     <div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -468,4 +562,63 @@
 
 @section('js')
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        function toggleTransactionTarget() {
+            const type = document.getElementById('trxType').value;
+            const budgetDiv = document.getElementById('budgetSelectDiv');
+            if (type === 'savings') {
+                budgetDiv.style.display = 'block';
+            } else {
+                budgetDiv.style.display = 'none';
+            }
+        }
+
+        function handleReceiptFile(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append('receipt_image', file);
+                formData.append('_token', '{{ csrf_token() }}');
+
+                document.getElementById('scanLoading').classList.remove('d-none');
+                document.getElementById('scanResultArea').classList.add('d-none');
+
+                fetch('{{ route("apps.finance.analyzeReceipt") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('scanLoading').classList.add('d-none');
+                    if (data.status === 'success' && data.data) {
+                        const d = data.data;
+                        document.getElementById('aiAmount').value = d.amount || '';
+                        document.getElementById('aiDate').value = d.date || '{{ date("Y-m-d") }}';
+                        
+                        let storeName = 'Belanja';
+                        let desc = d.description || '';
+                        if (desc.includes('\n')) {
+                            const lines = desc.split('\n');
+                            storeName = lines[0].replace(/^- /,'').trim();
+                        } else if (d.category) {
+                            storeName = d.category;
+                        }
+                        document.getElementById('aiStoreName').value = storeName;
+                        document.getElementById('aiDesc').value = desc;
+
+                        document.getElementById('scanResultArea').classList.remove('d-none');
+                    } else {
+                        alert(data.message || 'Gagal menganalisis struk. Silakan masukkan data manual.');
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('scanLoading').classList.add('d-none');
+                    alert('Gagal menghubungi server untuk analisis struk.');
+                });
+            }
+        }
+    </script>
 @endsection

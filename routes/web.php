@@ -59,6 +59,7 @@ Route::middleware('auth')->prefix('apps/finance')->name('apps.finance.')->group(
     Route::get('/', [\App\Http\Controllers\Apps\FinanceController::class, 'index'])->name('index');
     Route::get('/budgets', [\App\Http\Controllers\Apps\FinanceController::class, 'budgets'])->name('budgets');
     Route::post('/transactions', [\App\Http\Controllers\Apps\FinanceController::class, 'storeTransaction'])->name('transactions.store');
+    Route::post('/analyze-receipt', [\App\Http\Controllers\Apps\FinanceController::class, 'analyzeReceipt'])->name('analyzeReceipt');
     Route::put('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'updateTransaction'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'destroyTransaction'])->name('transactions.destroy');
     Route::post('/budgets', [\App\Http\Controllers\Apps\FinanceController::class, 'storeBudget'])->name('budgets.store');

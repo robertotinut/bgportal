@@ -353,7 +353,7 @@
             <span>Checklist</span>
         </a>
         <a href="{{ route('apps.finance.budgets') }}" class="nav-item-link active">
-            <i class="bi bi-wallet2-fill"></i>
+            <i class="bi bi-wallet2"></i>
             <span>Anggaran</span>
         </a>
         <a href="#" class="nav-item-link" data-bs-toggle="modal" data-bs-target="#profileModal">
