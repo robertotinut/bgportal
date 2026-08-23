@@ -198,6 +198,68 @@ class FinanceController extends Controller
     }
 
     /**
+     * PAGE 3: Laporan Keuangan & Analitik (Pemasukan, Pengeluaran, & Cashflow).
+     */
+    public function reports(Request $request)
+    {
+        $userId = Auth::id();
+        $this->initUserData();
+
+        $selectedMonth = $request->get('month', now()->format('Y-m'));
+        $selectedWalletId = $request->get('wallet_id');
+        $selectedType = $request->get('type');
+
+        $query = FinanceTransaction::where('user_id', $userId)
+            ->with('wallet')
+            ->whereYear('transaction_date', substr($selectedMonth, 0, 4))
+            ->whereMonth('transaction_date', substr($selectedMonth, 5, 2));
+
+        if ($selectedWalletId) {
+            $query->where('wallet_id', $selectedWalletId);
+        }
+
+        if ($selectedType) {
+            $query->where('type', $selectedType);
+        }
+
+        $transactions = $query->orderBy('transaction_date', 'desc')->orderBy('id', 'desc')->get();
+
+        $totalIncome = $transactions->where('type', 'income')->sum('amount');
+        $totalExpense = $transactions->where('type', 'expense')->sum('amount');
+        $totalSavings = $transactions->where('type', 'savings')->sum('amount');
+        $netCashflow = $totalIncome - $totalExpense;
+
+        // Category breakdown for expenses
+        $expenseCategories = $transactions->where('type', 'expense')
+            ->groupBy('category')
+            ->map(function ($items, $category) use ($totalExpense) {
+                $sum = $items->sum('amount');
+                $percentage = $totalExpense > 0 ? round(($sum / $totalExpense) * 100) : 0;
+                return [
+                    'category' => $category ?: 'Lainnya',
+                    'amount' => $sum,
+                    'percentage' => $percentage,
+                    'count' => $items->count(),
+                ];
+            })->sortByDesc('amount');
+
+        $wallets = FinanceWallet::where('user_id', $userId)->get();
+
+        return view('apps.finance.reports', compact(
+            'transactions',
+            'totalIncome',
+            'totalExpense',
+            'totalSavings',
+            'netCashflow',
+            'expenseCategories',
+            'selectedMonth',
+            'selectedWalletId',
+            'selectedType',
+            'wallets'
+        ));
+    }
+
+    /**
      * PAGE 2: Dedicated Halaman Anggaran & Target Tabungan (/apps/finance/budgets).
      */
     public function budgets(Request $request)

@@ -149,6 +149,28 @@
             font-size: 20px;
             margin-bottom: 2px;
         }
+
+        .center-action-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #f06548 0%, #d94f33 100%);
+            color: #FFFFFF !important;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(240, 101, 72, 0.4);
+            margin-top: -24px;
+            border: 3px solid #FFFFFF;
+            transition: transform 0.2s ease;
+        }
+        .center-action-btn:hover {
+            transform: scale(1.08);
+        }
+        .center-action-btn i {
+            font-size: 22px !important;
+            margin-bottom: 0 !important;
+        }
     </style>
 
     <div class="finanza-container p-2 p-md-3">
@@ -350,16 +372,22 @@
         </div>
     </div>
 
-    <!-- Mobile Fixed Bottom Navigation Bar -->
+    <!-- Mobile Fixed Bottom Navigation Bar (With Center Action Button) -->
     <div class="finanza-mobile-bottom-nav">
         <a href="{{ route('apps.finance.index') }}" class="nav-item-link active">
             <i class="bi bi-house-door-fill"></i>
             <span>Beranda</span>
         </a>
-        <a href="#" class="nav-item-link" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
-            <i class="bi bi-camera"></i>
-            <span>Scan Struk</span>
+        <a href="{{ route('apps.finance.reports') }}" class="nav-item-link">
+            <i class="bi bi-bar-chart"></i>
+            <span>Laporan</span>
         </a>
+
+        <!-- Center Raised Action Button (+ / Scan Struk) -->
+        <a href="#" class="center-action-btn" data-bs-toggle="modal" data-bs-target="#scanReceiptModal" title="Scan Struk / Catat">
+            <i class="bi bi-plus-lg"></i>
+        </a>
+
         <a href="{{ route('apps.finance.budgets') }}" class="nav-item-link">
             <i class="bi bi-wallet2"></i>
             <span>Anggaran</span>
