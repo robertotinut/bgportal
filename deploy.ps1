@@ -22,7 +22,7 @@ Write-Host "=========================================" -ForegroundColor Cyan
 
 $plink = "C:\Users\LENOVO\.gemini\antigravity-ide\brain\db129503-35c9-4e4d-bd59-ddf1b3aac74e\scratch\plink.exe"
 $pass = "shadow-64`$-storm"
-$vpsCmd = "cd /var/www/bgportal; git pull origin main; composer install --no-dev --optimize-autoloader; php artisan migrate --force; php artisan config:cache; php artisan route:cache; php artisan view:cache; chown -R ubuntu:www-data /var/www/bgportal; chmod -R 775 /var/www/bgportal/storage /var/www/bgportal/bootstrap/cache"
+$vpsCmd = "cd /var/www/bgportal; git pull origin main; composer install --no-dev --optimize-autoloader; php artisan migrate --force; php artisan config:cache; php artisan route:cache; php artisan view:cache; sudo chown -R ubuntu:www-data /var/www/bgportal/storage /var/www/bgportal/bootstrap/cache; chmod -R 775 /var/www/bgportal/storage /var/www/bgportal/bootstrap/cache"
 
 & $plink -batch -hostkey "SHA256:Unx7PP+hIiXEGkDjyvjeavYGjkSH9axtNwy+yDsufF4" -pw $pass ubuntu@43.133.154.13 $vpsCmd
 
