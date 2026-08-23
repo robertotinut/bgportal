@@ -24,7 +24,7 @@ class FinanceController extends Controller
             ['type' => 'cash', 'balance' => 5000000, 'color' => '#8C4325']
         );
 
-        // Default Budget / Target Tabungan (Matching Screenshot: Dana Nikah)
+        // Default Budget Targets
         $defaultBudget = FinanceBudget::firstOrCreate(
             ['user_id' => $userId, 'name' => 'Dana Nikah'],
             [
@@ -58,21 +58,21 @@ class FinanceController extends Controller
         // Seed Sample Transactions if empty
         if (FinanceTransaction::where('user_id', $userId)->count() === 0) {
             $sampleData = [
-                ['contributor_name' => 'Jessica', 'amount' => 200000, 'transaction_date' => '2026-08-20', 'description' => 'Tabungan Agustus'],
-                ['contributor_name' => 'Rudy', 'amount' => 500000, 'transaction_date' => '2026-08-03', 'description' => 'Freelance'],
-                ['contributor_name' => 'Rudy', 'amount' => 1200000, 'transaction_date' => '2026-07-25', 'description' => 'Gaji Bulan Juli'],
-                ['contributor_name' => 'Jessica', 'amount' => 300000, 'transaction_date' => '2026-07-24', 'description' => 'Setoran Bulanan'],
-                ['contributor_name' => 'Rudy', 'amount' => 1200000, 'transaction_date' => '2026-06-25', 'description' => 'Gaji Bulan Juni'],
+                ['contributor_name' => 'Jessica', 'type' => 'savings', 'amount' => 200000, 'transaction_date' => '2026-08-20', 'description' => 'Tabungan Agustus'],
+                ['contributor_name' => 'Rudy', 'type' => 'income', 'amount' => 500000, 'transaction_date' => '2026-08-03', 'description' => 'Freelance Project'],
+                ['contributor_name' => 'Rudy', 'type' => 'income', 'amount' => 1200000, 'transaction_date' => '2026-07-25', 'description' => 'Gaji Bulan Juli'],
+                ['contributor_name' => 'Jessica', 'type' => 'savings', 'amount' => 300000, 'transaction_date' => '2026-07-24', 'description' => 'Setoran Bulanan'],
+                ['contributor_name' => 'Rudy', 'type' => 'expense', 'amount' => 450000, 'transaction_date' => '2026-06-25', 'description' => 'Belanja Bulanan'],
             ];
 
             foreach ($sampleData as $item) {
                 FinanceTransaction::create([
                     'user_id' => $userId,
                     'budget_id' => $defaultBudget->id,
-                    'type' => 'savings',
+                    'type' => $item['type'],
                     'amount' => $item['amount'],
                     'contributor_name' => $item['contributor_name'],
-                    'category' => 'Tabungan',
+                    'category' => ucfirst($item['type']),
                     'description' => $item['description'],
                     'transaction_date' => $item['transaction_date'],
                 ]);
@@ -90,18 +90,24 @@ class FinanceController extends Controller
 
         $budgets = FinanceBudget::where('user_id', $userId)->get();
 
-        // Selected Budget ID or first budget (default: Dana Nikah)
+        // Selected Budget ID or first budget
         $selectedBudgetId = $request->get('budget_id', $budgets->first()->id ?? null);
         $activeBudget = FinanceBudget::where('user_id', $userId)->find($selectedBudgetId) ?? $budgets->first();
 
-        // Recalculate collected amount for active budget
-        $totalCollected = FinanceTransaction::where('user_id', $userId)
+        // Recalculate collected amount for active budget (income + savings - expense)
+        $incomeSavings = FinanceTransaction::where('user_id', $userId)
             ->where('budget_id', $activeBudget->id)
-            ->where('type', 'savings')
+            ->whereIn('type', ['income', 'savings'])
+            ->sum('amount');
+        $expenses = FinanceTransaction::where('user_id', $userId)
+            ->where('budget_id', $activeBudget->id)
+            ->where('type', 'expense')
             ->sum('amount');
 
-        if ($totalCollected > 0 && $activeBudget->collected_amount != $totalCollected) {
-            $activeBudget->collected_amount = $totalCollected;
+        $netCollected = max(0, $incomeSavings - $expenses);
+
+        if ($activeBudget->collected_amount != $netCollected) {
+            $activeBudget->collected_amount = $netCollected;
             $activeBudget->save();
         }
 
@@ -111,16 +117,16 @@ class FinanceController extends Controller
         $percentage = min(100, round(($collectedAmount / $targetAmount) * 100));
 
         $remainingAmount = max(0, $targetAmount - $collectedAmount);
-        $monthlySuggestion = ceil($remainingAmount / 16); // Suggested monthly savings over 16 months
+        $monthlySuggestion = ceil($remainingAmount / 16);
 
-        // Total Overall Finance Realisasi across all user budgets
-        $totalRealisasi = FinanceTransaction::where('user_id', $userId)->where('type', 'savings')->sum('amount');
+        // Overall Finance Stats
+        $totalRealisasi = FinanceTransaction::where('user_id', $userId)->whereIn('type', ['income', 'savings'])->sum('amount');
         $totalTarget = $budgets->sum('target_amount');
         $overallPercentage = $totalTarget > 0 ? min(100, round(($totalRealisasi / $totalTarget) * 100)) : 0;
         $overallEst = $totalTarget * 0.65;
         $overallSisa = max(0, $totalTarget - $totalRealisasi);
 
-        // Savings transactions history
+        // Transactions history
         $transactions = FinanceTransaction::where('user_id', $userId)
             ->where('budget_id', $activeBudget->id)
             ->orderBy('transaction_date', 'desc')
@@ -143,12 +149,35 @@ class FinanceController extends Controller
     }
 
     /**
-     * Store new transaction (Catat Tabungan / Income / Expense).
+     * Store new target / budget category.
+     */
+    public function storeBudget(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'target_amount' => 'required|numeric|min:100000',
+        ]);
+
+        $budget = FinanceBudget::create([
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+            'target_amount' => $request->target_amount,
+            'collected_amount' => 0,
+            'status' => 'active',
+        ]);
+
+        return redirect()->route('apps.finance.index', ['budget_id' => $budget->id])
+            ->with('success', "Target anggaran '{$budget->name}' berhasil dibuat!");
+    }
+
+    /**
+     * Store new transaction (Pemasukan / Pengeluaran / Tabungan).
      */
     public function storeTransaction(Request $request)
     {
         $request->validate([
             'budget_id' => 'required|exists:finance_budgets,id',
+            'type' => 'required|in:income,expense,savings',
             'contributor_name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:1000',
             'transaction_date' => 'required|date',
@@ -160,22 +189,29 @@ class FinanceController extends Controller
         FinanceTransaction::create([
             'user_id' => Auth::id(),
             'budget_id' => $budget->id,
-            'type' => 'savings',
+            'type' => $request->type,
             'amount' => $request->amount,
             'contributor_name' => $request->contributor_name,
-            'category' => 'Tabungan',
+            'category' => ucfirst($request->type),
             'description' => $request->description,
             'transaction_date' => $request->transaction_date,
         ]);
 
         // Recalculate collected amount
-        $budget->collected_amount = FinanceTransaction::where('user_id', Auth::id())
+        $inc = FinanceTransaction::where('user_id', Auth::id())
             ->where('budget_id', $budget->id)
-            ->where('type', 'savings')
+            ->whereIn('type', ['income', 'savings'])
             ->sum('amount');
+        $exp = FinanceTransaction::where('user_id', Auth::id())
+            ->where('budget_id', $budget->id)
+            ->where('type', 'expense')
+            ->sum('amount');
+
+        $budget->collected_amount = max(0, $inc - $exp);
         $budget->save();
 
-        return redirect()->back()->with('success', 'Catatan tabungan berhasil ditambahkan!');
+        $typeText = $request->type === 'income' ? 'Pemasukan' : ($request->type === 'expense' ? 'Pengeluaran' : 'Tabungan');
+        return redirect()->back()->with('success', "Catatan {$typeText} berhasil ditambahkan!");
     }
 
     /**
@@ -209,6 +245,7 @@ class FinanceController extends Controller
         }
 
         $request->validate([
+            'type' => 'required|in:income,expense,savings',
             'contributor_name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:1000',
             'transaction_date' => 'required|date',
@@ -216,6 +253,7 @@ class FinanceController extends Controller
         ]);
 
         $transaction->update([
+            'type' => $request->type,
             'contributor_name' => $request->contributor_name,
             'amount' => $request->amount,
             'transaction_date' => $request->transaction_date,
@@ -226,15 +264,21 @@ class FinanceController extends Controller
         if ($transaction->budget_id) {
             $budget = FinanceBudget::find($transaction->budget_id);
             if ($budget) {
-                $budget->collected_amount = FinanceTransaction::where('user_id', Auth::id())
+                $inc = FinanceTransaction::where('user_id', Auth::id())
                     ->where('budget_id', $budget->id)
-                    ->where('type', 'savings')
+                    ->whereIn('type', ['income', 'savings'])
                     ->sum('amount');
+                $exp = FinanceTransaction::where('user_id', Auth::id())
+                    ->where('budget_id', $budget->id)
+                    ->where('type', 'expense')
+                    ->sum('amount');
+
+                $budget->collected_amount = max(0, $inc - $exp);
                 $budget->save();
             }
         }
 
-        return redirect()->back()->with('success', 'Catatan tabungan berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Catatan keuangan berhasil diperbarui!');
     }
 
     /**
@@ -252,14 +296,20 @@ class FinanceController extends Controller
         if ($budgetId) {
             $budget = FinanceBudget::find($budgetId);
             if ($budget) {
-                $budget->collected_amount = FinanceTransaction::where('user_id', Auth::id())
+                $inc = FinanceTransaction::where('user_id', Auth::id())
                     ->where('budget_id', $budget->id)
-                    ->where('type', 'savings')
+                    ->whereIn('type', ['income', 'savings'])
                     ->sum('amount');
+                $exp = FinanceTransaction::where('user_id', Auth::id())
+                    ->where('budget_id', $budget->id)
+                    ->where('type', 'expense')
+                    ->sum('amount');
+
+                $budget->collected_amount = max(0, $inc - $exp);
                 $budget->save();
             }
         }
 
-        return redirect()->back()->with('success', 'Catatan tabungan berhasil dihapus!');
+        return redirect()->back()->with('success', 'Catatan transaksi berhasil dihapus!');
     }
 }

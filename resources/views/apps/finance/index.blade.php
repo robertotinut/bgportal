@@ -1,8 +1,8 @@
 @extends('partials.Layouts.master')
 
-@section('title', 'Finanza - Anggaran & Catatan Keuangan | BGPortal')
+@section('title', 'Finanza - Pencatat Keuangan & Anggaran | BGPortal')
 @section('title-sub', 'Finanza')
-@section('pagetitle', 'Anggaran & Tabungan')
+@section('pagetitle', 'Anggaran & Keuangan')
 
 @section('content')
     <style>
@@ -14,7 +14,7 @@
             padding-bottom: 90px !important;
         }
 
-        /* Complete Removal of Master Topbar, Breadcrumbs & Sidebars for Mobile/Tablet Finanza */
+        /* Complete Removal of Master Topbar, Breadcrumbs & Sidebars for Finanza */
         nav[aria-label="breadcrumb"],
         div.d-flex.align-items-center.mt-2.mb-2 {
             display: none !important;
@@ -80,6 +80,7 @@
             width: auto;
             max-width: 100%;
             overflow-x: auto;
+            white-space: nowrap;
         }
 
         .nav-pill-cream .nav-link {
@@ -142,6 +143,11 @@
             font-weight: 700;
         }
 
+        .text-expense-red {
+            color: #DC2626;
+            font-weight: 700;
+        }
+
         .btn-action-edit {
             color: #A45834;
             font-size: 13px;
@@ -161,7 +167,7 @@
             padding: 0;
         }
 
-        /* Mobile Fixed Bottom Navigation Bar (Matching Screenshot) */
+        /* Mobile Fixed Bottom Navigation Bar */
         .finanza-mobile-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -204,16 +210,17 @@
     <div class="finanza-container p-3 p-md-4">
         <div class="container-fluid max-w-700px mx-auto px-0 px-md-3">
 
-            <!-- Mobile App Top Bar with Back to Central Button -->
+            <!-- Mobile App Clean Header (No Top Back Button) -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-2">
-                <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-1">
-                    <i class="bi bi-arrow-left"></i>
-                    <span>Kembali ke Central</span>
-                </a>
-                <h5 class="fw-bold mb-0 text-dark">Anggaran</h5>
-                <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#editTargetModal">
-                    <i class="bi bi-three-dots"></i>
-                </button>
+                <h4 class="fw-bold mb-0 text-dark">Anggaran</h4>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+                        <i class="bi bi-plus-lg me-1"></i> Target Baru
+                    </button>
+                    <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#editTargetModal">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Success Alert -->
@@ -224,7 +231,7 @@
                 </div>
             @endif
 
-            <!-- 1. Top Donut Summary Card (Matching Screenshot) -->
+            <!-- 1. Top Donut Summary Card -->
             <div class="card-cream p-4 mb-4">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-3">
@@ -253,8 +260,8 @@
                 </div>
             </div>
 
-            <!-- 2. Navigation Category / Budget Tabs (Matching Screenshot) -->
-            <div class="d-flex justify-content-center mb-4 overflow-hidden">
+            <!-- 2. Navigation Category / Budget Tabs (Horizontal Scroll) -->
+            <div class="d-flex justify-content-start mb-4 overflow-auto pb-1">
                 <ul class="nav nav-pill-cream">
                     @foreach ($budgets as $b)
                         <li class="nav-item">
@@ -263,14 +270,19 @@
                             </a>
                         </li>
                     @endforeach
+                    <li class="nav-item">
+                        <a class="nav-link text-danger fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+                            + Target Baru
+                        </a>
+                    </li>
                 </ul>
             </div>
 
-            <!-- 3. Terracotta Target Card (Matching Screenshot) -->
+            <!-- 3. Terracotta Target Card -->
             <div class="card-terracotta mb-4">
                 <div class="d-flex align-items-start justify-content-between mb-3">
                     <div>
-                        <div class="fs-13 opacity-75 mb-1">Dana terkumpul</div>
+                        <div class="fs-13 opacity-75 mb-1">Dana terkumpul (Net)</div>
                         <h2 class="fw-bold mb-0 text-white fs-28">Rp{{ number_format($activeBudget->collected_amount, 0, ',', '.') }}</h2>
                     </div>
                     <button type="button" class="btn btn-glass-target" data-bs-toggle="modal" data-bs-target="#editTargetModal">
@@ -306,9 +318,9 @@
                 </div>
             </div>
 
-            <!-- 4. Riwayat Tabungan Section (Matching Screenshot) -->
+            <!-- 4. Riwayat Transaksi Section (Pemasukan, Pengeluaran, Tabungan) -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <h5 class="fw-bold mb-0 text-dark">Riwayat tabungan</h5>
+                <h5 class="fw-bold mb-0 text-dark">Riwayat transaksi</h5>
                 <button type="button" class="btn btn-terracotta shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                     + Catat
                 </button>
@@ -319,8 +331,13 @@
                 @forelse ($transactions as $t)
                     <div class="history-item d-flex align-items-center justify-content-between">
                         <div>
-                            <h6 class="fw-bold mb-1 text-dark fs-15">{{ $t->contributor_name ?? 'Tabungan' }}</h6>
-                            <div class="fs-12 text-muted">
+                            <div class="d-flex align-items-center gap-2">
+                                <h6 class="fw-bold mb-0 text-dark fs-15">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
+                                <span class="badge {{ $t->type === 'expense' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success' }} fs-11">
+                                    {{ $t->type === 'income' ? 'Pemasukan' : ($t->type === 'expense' ? 'Pengeluaran' : 'Tabungan') }}
+                                </span>
+                            </div>
+                            <div class="fs-12 text-muted mt-1">
                                 {{ $t->transaction_date ? $t->transaction_date->format('j M Y') : '' }} 
                                 @if ($t->description)
                                     <span class="ms-1">• {{ $t->description }}</span>
@@ -329,13 +346,17 @@
                         </div>
 
                         <div class="d-flex align-items-center">
-                            <span class="text-income-green fs-14 me-3">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
+                            @if ($t->type === 'expense')
+                                <span class="text-expense-red fs-14 me-3">-Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
+                            @else
+                                <span class="text-income-green fs-14 me-3">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
+                            @endif
                             
                             <!-- Edit Button -->
                             <button type="button" class="btn-action-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $t->id }}">Edit</button>
 
                             <!-- Delete Form -->
-                            <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pencatatan ini?')">
+                            <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pencatatan transaksi ini?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-action-delete" title="Hapus">&times;</button>
@@ -351,12 +372,20 @@
                                     @csrf
                                     @method('PUT')
                                     <div class="modal-header border-bottom-0 pb-0">
-                                        <h5 class="modal-title fw-bold">Edit Catatan Tabungan</h5>
+                                        <h5 class="modal-title fw-bold">Edit Catatan Transaksi</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body p-4">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Nama / Kontributor <span class="text-danger">*</span></label>
+                                            <label class="form-label fw-semibold">Jenis Transaksi <span class="text-danger">*</span></label>
+                                            <select name="type" class="form-select rounded-3" required>
+                                                <option value="savings" {{ $t->type === 'savings' ? 'selected' : '' }}>💰 Tabungan / Anggaran</option>
+                                                <option value="income" {{ $t->type === 'income' ? 'selected' : '' }}>📈 Pemasukan (Income)</option>
+                                                <option value="expense" {{ $t->type === 'expense' ? 'selected' : '' }}>📉 Pengeluaran (Expense)</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Nama / Sumber <span class="text-danger">*</span></label>
                                             <input type="text" name="contributor_name" class="form-control rounded-3" value="{{ $t->contributor_name }}" required>
                                         </div>
                                         <div class="mb-3">
@@ -369,7 +398,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Catatan / Keterangan</label>
-                                            <input type="text" name="description" class="form-control rounded-3" value="{{ $t->description }}" placeholder="Misal: Gaji, Freelance, Bonus">
+                                            <input type="text" name="description" class="form-control rounded-3" value="{{ $t->description }}" placeholder="Misal: Gaji, Belanja Bulanan, Bonus">
                                         </div>
                                     </div>
                                     <div class="modal-footer border-top-0 pt-0">
@@ -384,9 +413,9 @@
                 @empty
                     <div class="card-cream p-5 text-center text-muted">
                         <i class="bi bi-wallet2 fs-1 text-secondary mb-2 d-block"></i>
-                        Belum ada riwayat tabungan yang dicatat pada target ini.
+                        Belum ada riwayat transaksi pada target ini.
                         <div class="mt-2">
-                            <button type="button" class="btn btn-terracotta btn-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ Tambah Catatan Tabungan</button>
+                            <button type="button" class="btn btn-terracotta btn-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ Catat Transaksi Baru</button>
                         </div>
                     </div>
                 @endforelse
@@ -395,9 +424,9 @@
         </div>
     </div>
 
-    <!-- Mobile Fixed Bottom Navigation Bar (Matching Screenshot: Beranda, Checklist, Anggaran, Profil) -->
-    <div class="finanza-mobile-bottom-nav d-flex d-md-none">
-        <a href="{{ route('dashboard') }}" class="nav-item-link">
+    <!-- Mobile Fixed Bottom Navigation Bar (Beranda Finanza, Checklist, Anggaran, Profil) -->
+    <div class="finanza-mobile-bottom-nav">
+        <a href="{{ route('apps.finance.index') }}" class="nav-item-link {{ request()->is('apps/finance') && !request()->filled('budget_id') ? 'active' : '' }}">
             <i class="bi bi-house-door"></i>
             <span>Beranda</span>
         </a>
@@ -409,13 +438,13 @@
             <i class="bi bi-wallet2"></i>
             <span>Anggaran</span>
         </a>
-        <a href="{{ route('dashboard') }}" class="nav-item-link">
+        <a href="#" class="nav-item-link" data-bs-toggle="modal" data-bs-target="#profileModal">
             <i class="bi bi-person"></i>
             <span>Profil</span>
         </a>
     </div>
 
-    <!-- Modal Catat Tabungan Baru -->
+    <!-- Modal Catat Transaksi Baru (Pemasukan, Pengeluaran, Tabungan) -->
     <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow">
@@ -424,16 +453,24 @@
                     <input type="hidden" name="budget_id" value="{{ $activeBudget->id }}">
 
                     <div class="modal-header border-bottom-0 pb-0">
-                        <h5 class="modal-title fw-bold" id="addTransactionModalLabel">+ Catat Tabungan Baru</h5>
+                        <h5 class="modal-title fw-bold" id="addTransactionModalLabel">+ Catat Transaksi Baru</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Nama / Kontributor <span class="text-danger">*</span></label>
-                            <input type="text" name="contributor_name" class="form-control rounded-3" placeholder="Contoh: Jessica atau Rudy" required>
+                            <label class="form-label fw-semibold">Jenis Transaksi <span class="text-danger">*</span></label>
+                            <select name="type" class="form-select rounded-3" required>
+                                <option value="savings" selected>💰 Tabungan / Target Anggaran</option>
+                                <option value="income">📈 Pemasukan (Income)</option>
+                                <option value="expense">📉 Pengeluaran (Expense)</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Nominal Tabungan (Rp) <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">Nama / Sumber / Kontributor <span class="text-danger">*</span></label>
+                            <input type="text" name="contributor_name" class="form-control rounded-3" placeholder="Contoh: Jessica, Rudy, Gaji, Freelance" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nominal Rp <span class="text-danger">*</span></label>
                             <input type="number" name="amount" class="form-control rounded-3" placeholder="Contoh: 500000" min="1000" required>
                         </div>
                         <div class="mb-3">
@@ -442,19 +479,48 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Catatan / Keterangan</label>
-                            <input type="text" name="description" class="form-control rounded-3" placeholder="Contoh: Gaji, Freelance, Bonus">
+                            <input type="text" name="description" class="form-control rounded-3" placeholder="Contoh: Setoran Bulanan, Beli Bahan, Fee Project">
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-terracotta rounded-pill px-4">Simpan Catatan</button>
+                        <button type="submit" class="btn btn-terracotta rounded-pill px-4">Simpan Transaksi</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal Atur Target Anggaran -->
+    <!-- Modal Target Anggaran Baru -->
+    <div class="modal fade" id="newBudgetModal" tabindex="-1" aria-labelledby="newBudgetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <form action="{{ route('apps.finance.budgets.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom-0 pb-0">
+                        <h5 class="modal-title fw-bold" id="newBudgetModalLabel">+ Tambah Target Anggaran Baru</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nama Target Anggaran / Kategori <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control rounded-3" placeholder="Contoh: Tabungan Rumah, Operational, Dana Darurat" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Total Target Rp <span class="text-danger">*</span></label>
+                            <input type="number" name="target_amount" class="form-control rounded-3" placeholder="Contoh: 50000000" min="100000" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-terracotta rounded-pill px-4">Buat Target</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Atur Target Active -->
     <div class="modal fade" id="editTargetModal" tabindex="-1" aria-labelledby="editTargetModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded-4 border-0 shadow">
@@ -480,6 +546,29 @@
                         <button type="submit" class="btn btn-terracotta rounded-pill px-4">Simpan Target</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Profile & Kembali ke Central -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="profileModalLabel">Profil Akun & Central Portal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div class="avatar-lg rounded-circle bg-warning-subtle text-warning mx-auto d-flex align-items-center justify-content-center mb-3 fs-1 fw-bold">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">{{ Auth::user()->name }}</h5>
+                    <p class="text-muted fs-14 mb-4">{{ Auth::user()->email }}</p>
+
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-primary btn-lg w-100 rounded-pill fw-bold py-2 mb-2">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Central Hub Apps
+                    </a>
+                </div>
             </div>
         </div>
     </div>
