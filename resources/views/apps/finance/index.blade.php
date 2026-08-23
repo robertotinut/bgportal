@@ -14,21 +14,39 @@
             padding-bottom: 90px !important;
         }
 
-        /* Hide Central Sidebar & Header Breadcrumbs on Mobile for Finanza App Mode */
-        @media (max-width: 767.98px) {
+        /* Complete Removal of Master Topbar, Breadcrumbs & Sidebars for Mobile/Tablet Finanza */
+        @media (max-width: 991.98px) {
+            header.app-header,
+            #appHeader,
+            .app-header,
+            .page-title-box,
             .pe-app-sidebar, 
             .pe-sidebar-overlay,
-            .page-title-box,
-            .pe-header {
+            footer.footer,
+            .footer {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
             }
-            .pe-main-content, 
+
+            .app-wrapper,
+            main.app-wrapper,
             #layout-wrapper,
             .main-content {
-                margin-left: 0 !important;
+                margin: 0 !important;
                 padding-top: 0 !important;
                 margin-top: 0 !important;
             }
+
+            .container-fluid {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                padding-top: 0 !important;
+            }
+
             .finanza-container {
                 padding-top: 15px !important;
             }
