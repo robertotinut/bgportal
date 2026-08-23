@@ -6,12 +6,13 @@
 
 @section('content')
     <style>
-        /* Mobile-first Finanza Clean Theme - Matching BGPortal Template Palette */
+        /* Modern Premium Finanza UI Palette (Inspired by High-End Fintech Apps) */
         .finanza-container {
-            background-color: #F4F6F9;
+            background-color: #F8FAFC;
             min-height: 100vh;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', 'Inter', sans-serif;
             padding-bottom: 90px !important;
+            color: #0F172A;
         }
 
         /* Complete Removal of Master Topbar, Breadcrumbs & Sidebars for Finanza */
@@ -57,82 +58,98 @@
             }
         }
 
-        .card-template-primary {
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        /* Hero Balance Card - Premium Dark Midnight Obsidian Gradient */
+        .card-hero-midnight {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
             color: #FFFFFF;
             border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 10px 25px rgba(13, 110, 253, 0.25);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
+            position: relative;
+            overflow: hidden;
         }
 
-        .card-cream {
+        .card-hero-midnight::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+        }
+
+        /* Clean White Cards */
+        .card-clean {
             background-color: #FFFFFF;
-            border-radius: 24px;
-            border: 1px solid #E5E7EB;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            border-radius: 20px;
+            border: 1px solid #F1F5F9;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-clean:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
         }
 
-        .btn-template-primary {
-            background-color: #0d6efd;
+        .btn-finanza-primary {
+            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
             color: #FFFFFF;
             border-radius: 25px;
             font-weight: 600;
-            padding: 8px 22px;
+            padding: 9px 22px;
             border: none;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
         }
 
-        .btn-template-primary:hover {
-            background-color: #0b5ed7;
+        .btn-finanza-primary:hover {
+            background: linear-gradient(135deg, #4338CA 0%, #2563EB 100%);
             color: #FFFFFF;
         }
 
         .history-item {
             background-color: #FFFFFF;
-            border-radius: 20px;
+            border-radius: 18px;
             padding: 16px 20px;
             margin-bottom: 12px;
-            border: 1px solid #E5E7EB;
+            border: 1px solid #F1F5F9;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
 
-        .text-income-green {
-            color: #16A34A;
+        .text-income {
+            color: #10B981;
             font-weight: 700;
         }
 
-        .text-expense-red {
-            color: #DC2626;
+        .text-expense {
+            color: #EF4444;
             font-weight: 700;
-        }
-
-        .btn-action-edit {
-            color: #0d6efd;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            background: none;
-            border: none;
-            padding: 0;
-            margin-right: 12px;
         }
 
         .btn-action-delete {
-            color: #9CA3AF;
+            color: #94A3B8;
             font-size: 16px;
             background: none;
             border: none;
             padding: 0;
+            transition: color 0.2s ease;
+        }
+        .btn-action-delete:hover {
+            color: #EF4444;
         }
 
-        /* Mobile Fixed Bottom Navigation Bar */
+        /* Bottom Floating Bar */
         .finanza-mobile-bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             height: 70px;
-            background-color: #FFFFFF;
-            border-top: 1px solid #E5E7EB;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid #F1F5F9;
+            box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
             z-index: 1030;
             display: flex;
             align-items: center;
@@ -145,16 +162,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #9CA3AF;
+            color: #94A3B8;
             text-decoration: none;
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
             flex: 1;
         }
 
         .finanza-mobile-bottom-nav .nav-item-link.active {
-            color: #0d6efd;
-            font-weight: 700;
+            color: #4F46E5;
         }
 
         .finanza-mobile-bottom-nav .nav-item-link i {
@@ -166,14 +182,14 @@
     <div class="finanza-container p-3 p-md-4">
         <div class="container-fluid max-w-700px mx-auto px-0 px-md-3">
 
-            <!-- App Top Header -->
+            <!-- Clean App Header -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-2">
                 <div>
-                    <h4 class="fw-bold mb-0 text-dark">Beranda Keuangan</h4>
-                    <span class="fs-12 text-muted">Selamat Datang, {{ Auth::user()->name }}</span>
+                    <h4 class="fw-bold mb-0 text-slate-900">Beranda Keuangan</h4>
+                    <span class="fs-12 text-slate-500">Halo, {{ Auth::user()->name }} 👋</span>
                 </div>
-                <button type="button" class="btn btn-template-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                    <i class="bi bi-plus-lg me-1"></i> Catat Transaksi
+                <button type="button" class="btn btn-finanza-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    <i class="bi bi-plus-lg me-1"></i> Catat
                 </button>
             </div>
 
@@ -185,21 +201,21 @@
                 </div>
             @endif
 
-            <!-- Main Total Saldo Card (BGPortal Template Primary Color) -->
-            <div class="card-template-primary mb-4">
+            <!-- Hero Balance Card (Midnight Obsidian Theme) -->
+            <div class="card-hero-midnight mb-4">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <span class="fs-13 opacity-75 fw-semibold"><i class="bi bi-wallet2 me-1"></i> Total Saldo Keuangan</span>
-                    <span class="badge bg-white bg-opacity-25 text-white fs-12 px-3 py-1 rounded-pill">Aktif</span>
+                    <span class="badge bg-indigo-500 bg-opacity-25 text-white fs-11 px-3 py-1 rounded-pill border border-white border-opacity-20">Utama</span>
                 </div>
                 <h2 class="fw-bold mb-3 text-white fs-32">Rp{{ number_format($totalBalance, 0, ',', '.') }}</h2>
 
-                <div class="row g-2 pt-2 border-top border-white border-opacity-25">
+                <div class="row g-2 pt-3 border-top border-white border-opacity-15">
                     <div class="col-6">
-                        <div class="fs-12 opacity-75">Pemasukan Bulan Ini</div>
-                        <div class="fw-bold fs-15 text-white">+Rp{{ number_format($monthlyIncome, 0, ',', '.') }}</div>
+                        <div class="fs-12 opacity-75 mb-1"><i class="bi bi-arrow-down-left-circle text-emerald-400 me-1"></i> Pemasukan Bulan Ini</div>
+                        <div class="fw-bold fs-15 text-emerald-400">+Rp{{ number_format($monthlyIncome, 0, ',', '.') }}</div>
                     </div>
                     <div class="col-6">
-                        <div class="fs-12 opacity-75">Pengeluaran Bulan Ini</div>
+                        <div class="fs-12 opacity-75 mb-1"><i class="bi bi-arrow-up-right-circle text-rose-400 me-1"></i> Pengeluaran Bulan Ini</div>
                         <div class="fw-bold fs-15 text-white">-Rp{{ number_format($monthlyExpense, 0, ',', '.') }}</div>
                     </div>
                 </div>
@@ -207,29 +223,29 @@
 
             <!-- Wallets / Rekening Grid -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <h6 class="fw-bold mb-0 text-dark">Rekening & Dompet</h6>
-                <span class="fs-12 text-muted">{{ $wallets->count() }} Dompet</span>
+                <h6 class="fw-bold mb-0 text-slate-800 fs-15">Rekening & Dompet</h6>
+                <span class="fs-12 text-slate-500 fw-semibold">{{ $wallets->count() }} Accounts</span>
             </div>
 
             <div class="row g-3 mb-4">
                 @foreach ($wallets as $w)
                     <div class="col-6 col-md-4">
-                        <div class="card-cream p-3 h-100">
+                        <div class="card-clean p-3 h-100">
                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="badge bg-primary-subtle text-primary fs-11 text-uppercase">{{ $w->type }}</span>
-                                <i class="bi bi-credit-card text-muted"></i>
+                                <span class="badge bg-slate-100 text-slate-600 fs-10 fw-bold uppercase px-2 py-1 rounded-2">{{ strtoupper($w->type) }}</span>
+                                <i class="bi bi-credit-card-2-front text-slate-400 fs-14"></i>
                             </div>
-                            <div class="fw-bold text-dark fs-14 text-truncate">{{ $w->name }}</div>
-                            <div class="fw-bold text-primary fs-15 mt-1">Rp{{ number_format($w->balance, 0, ',', '.') }}</div>
+                            <div class="fw-bold text-slate-800 fs-13 text-truncate mb-1">{{ $w->name }}</div>
+                            <div class="fw-bold text-slate-900 fs-15">Rp{{ number_format($w->balance, 0, ',', '.') }}</div>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            <!-- Recent Mutasi / Transactions List -->
+            <!-- Recent Mutasi Transactions List -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <h6 class="fw-bold mb-0 text-dark">Mutasi Transaksi Terbaru</h6>
-                <a href="{{ route('apps.finance.budgets') }}" class="fs-12 text-primary fw-semibold text-decoration-none">Lihat Anggaran Target &rarr;</a>
+                <h6 class="fw-bold mb-0 text-slate-800 fs-15">Mutasi Transaksi Terbaru</h6>
+                <a href="{{ route('apps.finance.budgets') }}" class="fs-12 text-indigo-600 fw-semibold text-decoration-none">Lihat Anggaran Target &rarr;</a>
             </div>
 
             <div class="mb-5">
@@ -237,12 +253,12 @@
                     <div class="history-item d-flex align-items-center justify-content-between">
                         <div>
                             <div class="d-flex align-items-center gap-2">
-                                <h6 class="fw-bold mb-0 text-dark fs-15">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
-                                <span class="badge {{ $t->type === 'expense' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success' }} fs-11">
+                                <h6 class="fw-bold mb-0 text-slate-900 fs-14">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
+                                <span class="badge {{ $t->type === 'expense' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100' }} fs-11">
                                     {{ $t->type === 'income' ? 'Pemasukan' : ($t->type === 'expense' ? 'Pengeluaran' : 'Tabungan') }}
                                 </span>
                             </div>
-                            <div class="fs-12 text-muted mt-1">
+                            <div class="fs-12 text-slate-400 mt-1">
                                 {{ $t->transaction_date ? $t->transaction_date->format('j M Y') : '' }}
                                 @if ($t->wallet)
                                     <span class="ms-1">• {{ $t->wallet->name }}</span>
@@ -255,9 +271,9 @@
 
                         <div class="d-flex align-items-center">
                             @if ($t->type === 'expense')
-                                <span class="text-expense-red fs-14 me-3">-Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
+                                <span class="text-expense fs-14 me-3">-Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
                             @else
-                                <span class="text-income-green fs-14 me-3">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
+                                <span class="text-income fs-14 me-3">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
                             @endif
 
                             <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus transaksi ini?')">
@@ -268,7 +284,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="card-cream p-4 text-center text-muted">
+                    <div class="card-clean p-4 text-center text-slate-400">
                         Belum ada transaksi tercatat.
                     </div>
                 @endforelse
@@ -343,7 +359,7 @@
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-template-primary rounded-pill px-4">Simpan Transaksi</button>
+                        <button type="submit" class="btn btn-finanza-primary rounded-pill px-4">Simpan Transaksi</button>
                     </div>
                 </form>
             </div>
@@ -359,11 +375,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
-                    <div class="avatar-lg rounded-circle bg-primary-subtle text-primary mx-auto d-flex align-items-center justify-content-center mb-3 fs-1 fw-bold">
+                    <div class="avatar-lg rounded-circle bg-indigo-50 text-indigo-600 mx-auto d-flex align-items-center justify-content-center mb-3 fs-1 fw-bold">
                         <i class="bi bi-person"></i>
                     </div>
-                    <h5 class="fw-bold text-dark mb-1">{{ Auth::user()->name }}</h5>
-                    <p class="text-muted fs-14 mb-4">{{ Auth::user()->email }}</p>
+                    <h5 class="fw-bold text-slate-900 mb-1">{{ Auth::user()->name }}</h5>
+                    <p class="text-slate-500 fs-14 mb-4">{{ Auth::user()->email }}</p>
 
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-primary btn-lg w-100 rounded-pill fw-bold py-2 mb-2">
                         <i class="bi bi-arrow-left me-1"></i> Kembali ke Central Hub Apps
