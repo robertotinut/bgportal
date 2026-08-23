@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Apps;
 
 use App\Http\Controllers\Controller;
+use App\Models\FinanceBill;
 use App\Models\FinanceBudget;
 use App\Models\FinanceTransaction;
 use App\Models\FinanceWallet;
@@ -34,6 +35,41 @@ class FinanceController extends Controller
         $ewallet = FinanceWallet::firstOrCreate(
             ['user_id' => $userId, 'name' => 'E-Wallet (GoPay/OVO)'],
             ['type' => 'ewallet', 'balance' => 850000, 'color' => '#0dcaf0']
+        );
+
+        // Default Bills
+        FinanceBill::firstOrCreate(
+            ['user_id' => $userId, 'name' => 'Listrik PLN'],
+            [
+                'category' => 'Listrik',
+                'amount' => 250000,
+                'due_day' => 20,
+                'status' => 'unpaid',
+                'notes' => 'Tagihan pascabayar PLN',
+            ]
+        );
+
+        FinanceBill::firstOrCreate(
+            ['user_id' => $userId, 'name' => 'Internet & WiFi'],
+            [
+                'category' => 'Internet',
+                'amount' => 350000,
+                'due_day' => 15,
+                'status' => 'unpaid',
+                'notes' => 'Langganan bulanan Biznet/Indihome',
+            ]
+        );
+
+        FinanceBill::firstOrCreate(
+            ['user_id' => $userId, 'name' => 'BPJS Kesehatan'],
+            [
+                'category' => 'Asuransi',
+                'amount' => 150000,
+                'due_day' => 10,
+                'status' => 'paid',
+                'last_paid_at' => now()->startOfMonth(),
+                'notes' => 'Iuran BPJS Kelas 1',
+            ]
         );
 
         // Default Budget Targets
@@ -128,14 +164,166 @@ class FinanceController extends Controller
 
         $budgets = FinanceBudget::where('user_id', $userId)->get();
 
+        $unpaidBills = FinanceBill::where('user_id', $userId)->where('status', 'unpaid')->get();
+        $unpaidBillsCount = $unpaidBills->count();
+        $totalUnpaidBills = $unpaidBills->sum('amount');
+
         return view('apps.finance.index', compact(
             'wallets',
             'totalBalance',
             'monthlyIncome',
             'monthlyExpense',
             'recentTransactions',
-            'budgets'
+            'budgets',
+            'unpaidBillsCount',
+            'totalUnpaidBills'
         ));
+    }
+
+    /**
+     * PAGE 4: Tagihan & Langganan Rutin (/apps/finance/bills).
+     */
+    public function bills(Request $request)
+    {
+        $userId = Auth::id();
+        $this->initUserData();
+
+        $bills = FinanceBill::where('user_id', $userId)
+            ->with('wallet')
+            ->orderBy('status', 'asc') // 'unpaid' first, then 'paid'
+            ->orderBy('due_day', 'asc')
+            ->get();
+
+        $unpaidBills = $bills->where('status', 'unpaid');
+        $paidBills = $bills->where('status', 'paid');
+        $totalUnpaid = $unpaidBills->sum('amount');
+        $totalPaid = $paidBills->sum('amount');
+
+        $wallets = FinanceWallet::where('user_id', $userId)->get();
+
+        return view('apps.finance.bills', compact(
+            'bills',
+            'unpaidBills',
+            'paidBills',
+            'totalUnpaid',
+            'totalPaid',
+            'wallets'
+        ));
+    }
+
+    /**
+     * Store new Bill.
+     */
+    public function storeBill(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+            'amount' => 'required|numeric|min:1000',
+            'due_day' => 'required|integer|min:1|max:31',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        FinanceBill::create([
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+            'category' => $request->category,
+            'amount' => $request->amount,
+            'due_day' => $request->due_day,
+            'status' => 'unpaid',
+            'notes' => $request->notes,
+        ]);
+
+        return redirect()->back()->with('success', "Tagihan '{$request->name}' berhasil ditambahkan!");
+    }
+
+    /**
+     * Update Bill.
+     */
+    public function updateBill(Request $request, FinanceBill $bill)
+    {
+        if ($bill->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+            'amount' => 'required|numeric|min:1000',
+            'due_day' => 'required|integer|min:1|max:31',
+            'status' => 'required|in:unpaid,paid',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        $bill->update([
+            'name' => $request->name,
+            'category' => $request->category,
+            'amount' => $request->amount,
+            'due_day' => $request->due_day,
+            'status' => $request->status,
+            'notes' => $request->notes,
+        ]);
+
+        return redirect()->back()->with('success', "Tagihan '{$bill->name}' berhasil diperbarui!");
+    }
+
+    /**
+     * Pay Bill (Bayar Tagihan & Potong Saldo Rekening Otomatis).
+     */
+    public function payBill(Request $request, FinanceBill $bill)
+    {
+        if ($bill->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'wallet_id' => 'required|exists:finance_wallets,id',
+        ]);
+
+        $userId = Auth::id();
+        $wallet = FinanceWallet::where('user_id', $userId)->findOrFail($request->wallet_id);
+
+        if ($wallet->balance < $bill->amount) {
+            return redirect()->back()->with('error', "Saldo pada dompet '{$wallet->name}' tidak mencukupi untuk membayar tagihan!");
+        }
+
+        // Deduct from wallet
+        $wallet->balance -= $bill->amount;
+        $wallet->save();
+
+        // Log expense transaction
+        FinanceTransaction::create([
+            'user_id' => $userId,
+            'wallet_id' => $wallet->id,
+            'type' => 'expense',
+            'amount' => $bill->amount,
+            'contributor_name' => "Bayar {$bill->name}",
+            'category' => $bill->category ?: 'Tagihan',
+            'description' => "Pembayaran tagihan {$bill->name} (Jatuh tempo tgl {$bill->due_day})",
+            'transaction_date' => now(),
+        ]);
+
+        // Update bill status
+        $bill->update([
+            'status' => 'paid',
+            'wallet_id' => $wallet->id,
+            'last_paid_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', "Tagihan '{$bill->name}' sebesar Rp " . number_format($bill->amount, 0, ',', '.') . " berhasil dibayar dan dipotong dari dompet {$wallet->name}!");
+    }
+
+    /**
+     * Delete Bill.
+     */
+    public function destroyBill(FinanceBill $bill)
+    {
+        if ($bill->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $bill->delete();
+        return redirect()->back()->with('success', 'Tagihan berhasil dihapus!');
     }
 
     /**

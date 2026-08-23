@@ -113,6 +113,13 @@
                 </li>
 
                 <li class="pe-slide">
+                    <a href="{{ route('apps.finance.bills') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.bills') ? 'active' : '' }}">
+                        <i class="bi bi-receipt pe-nav-icon text-indigo"></i>
+                        <span class="pe-nav-content">Tagihan & Langganan</span>
+                    </a>
+                </li>
+
+                <li class="pe-slide">
                     <a href="{{ route('apps.finance.reports') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.reports') ? 'active' : '' }}">
                         <i class="bi bi-bar-chart-fill pe-nav-icon text-indigo"></i>
                         <span class="pe-nav-content">Laporan & Mutasi</span>

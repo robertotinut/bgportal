@@ -354,9 +354,9 @@
             <i class="bi bi-house-door"></i>
             <span>Beranda</span>
         </a>
-        <a href="{{ route('apps.finance.reports') }}" class="nav-item-link">
-            <i class="bi bi-bar-chart"></i>
-            <span>Laporan</span>
+        <a href="{{ route('apps.finance.bills') }}" class="nav-item-link">
+            <i class="bi bi-receipt"></i>
+            <span>Tagihan</span>
         </a>
 
         <!-- Center Raised Action Button (+ / Scan Struk) -->
@@ -368,9 +368,9 @@
             <i class="bi bi-wallet2"></i>
             <span>Anggaran</span>
         </a>
-        <a href="#" class="nav-item-link" data-bs-toggle="modal" data-bs-target="#profileModal">
-            <i class="bi bi-person"></i>
-            <span>Profil</span>
+        <a href="{{ route('apps.finance.reports') }}" class="nav-item-link">
+            <i class="bi bi-bar-chart"></i>
+            <span>Laporan</span>
         </a>
     </div>
 

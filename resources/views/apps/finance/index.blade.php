@@ -317,7 +317,27 @@
                 @endforelse
             </div>
 
-            <!-- 3. Menu Pintasan Cepat (Quick Actions Grid) -->
+            <!-- 3. Pengingat Tagihan Bulanan (Jika ada tagihan belum lunas) -->
+            @if ($unpaidBillsCount > 0)
+                <div class="card border-0 bg-danger-subtle rounded-4 p-3 mb-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-md rounded-circle bg-danger text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
+                                <i class="bi bi-receipt fs-4"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-danger mb-0 fs-14">{{ $unpaidBillsCount }} Tagihan Belum Dibayar</h6>
+                                <div class="fs-12 text-muted mt-0.5">Total tagihan: <strong>Rp {{ number_format($totalUnpaidBills, 0, ',', '.') }}</strong></div>
+                            </div>
+                        </div>
+                        <a href="{{ route('apps.finance.bills') }}" class="btn btn-danger btn-sm rounded-pill px-3 py-1.5 fw-semibold fs-12 btn-nowrap">
+                            Bayar Tagihan &rarr;
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            <!-- 4. Menu Pintasan Cepat (Quick Actions Grid) -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <h5 class="fw-bold mb-0 text-dark fs-16">Aksi Cepat</h5>
             </div>
@@ -344,6 +364,16 @@
                 </div>
 
                 <div class="col-6 col-md-3">
+                    <a href="{{ route('apps.finance.bills') }}" class="card border shadow-sm rounded-4 p-3 text-center h-100 text-decoration-none">
+                        <div class="avatar-md rounded-circle bg-danger-subtle text-danger mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="bi bi-receipt fs-4"></i>
+                        </div>
+                        <div class="fw-bold text-dark fs-14">Bayar Tagihan</div>
+                        <div class="text-muted fs-11 mt-1">Listrik, WiFi, BPJS &rarr;</div>
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-3">
                     <div class="card border shadow-sm rounded-4 p-3 text-center h-100 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#transferModal">
                         <div class="avatar-md rounded-circle bg-info-subtle text-info mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
                             <i class="bi bi-arrow-left-right fs-4"></i>
@@ -352,19 +382,9 @@
                         <div class="text-muted fs-11 mt-1">Pindah saldo antar dompet</div>
                     </div>
                 </div>
-
-                <div class="col-6 col-md-3">
-                    <a href="{{ route('apps.finance.reports') }}" class="card border shadow-sm rounded-4 p-3 text-center h-100 text-decoration-none">
-                        <div class="avatar-md rounded-circle bg-warning-subtle text-warning mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
-                            <i class="bi bi-bar-chart-fill fs-4"></i>
-                        </div>
-                        <div class="fw-bold text-dark fs-14">Laporan & Mutasi</div>
-                        <div class="text-muted fs-11 mt-1">Rekapitulasi lengkap &rarr;</div>
-                    </a>
-                </div>
             </div>
 
-            <!-- 4. Ringkasan Finansial Singkat -->
+            <!-- 5. Ringkasan Finansial Singkat -->
             <div class="card border-0 bg-light rounded-4 p-4 mb-4">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -375,7 +395,7 @@
                         </h4>
                     </div>
                     <a href="{{ route('apps.finance.reports') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
-                        Lihat Rincian <i class="bi bi-arrow-right ms-1"></i>
+                        Lihat Laporan <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -389,9 +409,9 @@
             <i class="bi bi-house-door-fill"></i>
             <span>Beranda</span>
         </a>
-        <a href="{{ route('apps.finance.reports') }}" class="nav-item-link">
-            <i class="bi bi-bar-chart"></i>
-            <span>Laporan</span>
+        <a href="{{ route('apps.finance.bills') }}" class="nav-item-link">
+            <i class="bi bi-receipt"></i>
+            <span>Tagihan</span>
         </a>
 
         <!-- Center Raised Action Button (+ / Scan Struk) -->
@@ -403,9 +423,9 @@
             <i class="bi bi-wallet2"></i>
             <span>Anggaran</span>
         </a>
-        <a href="#" class="nav-item-link" data-bs-toggle="modal" data-bs-target="#profileModal">
-            <i class="bi bi-person"></i>
-            <span>Profil</span>
+        <a href="{{ route('apps.finance.reports') }}" class="nav-item-link">
+            <i class="bi bi-bar-chart"></i>
+            <span>Laporan</span>
         </a>
     </div>
 
