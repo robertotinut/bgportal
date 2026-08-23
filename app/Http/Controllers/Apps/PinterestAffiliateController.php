@@ -19,13 +19,6 @@ class PinterestAffiliateController extends Controller
     public function __construct(ShopeeScraperService $scraperService)
     {
         $this->scraperService = $scraperService;
-
-        $this->middleware(function ($request, $next) {
-            if (!Auth::check() || !Auth::user()->canAccessApp('pinterest')) {
-                return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki hak akses ke modul aplikasi Pinterest Affiliate.');
-            }
-            return $next($request);
-        });
     }
 
     /**

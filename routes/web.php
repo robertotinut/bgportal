@@ -33,14 +33,14 @@ Route::middleware('auth')->group(function () {
 });
 
 // POS Module Routes
-Route::middleware('auth')->prefix('apps/pos')->name('apps.pos.')->group(function () {
+Route::middleware(['auth', 'app.access:pos'])->prefix('apps/pos')->name('apps.pos.')->group(function () {
     Route::get('/', [PosController::class, 'index'])->name('index');
     Route::get('/reports', [PosController::class, 'reports'])->name('reports');
     Route::get('/products', [PosController::class, 'products'])->name('products');
 });
 
 // Pinterest Affiliate Module Routes
-Route::middleware('auth')->prefix('apps/pinterest-affiliate')->name('apps.pinterest.')->group(function () {
+Route::middleware(['auth', 'app.access:pinterest'])->prefix('apps/pinterest-affiliate')->name('apps.pinterest.')->group(function () {
     Route::get('/', [PinterestAffiliateController::class, 'index'])->name('index');
     Route::post('/toggle', [PinterestAffiliateController::class, 'toggleAutomation'])->name('toggle');
 
@@ -61,7 +61,7 @@ Route::middleware('auth')->prefix('apps/pinterest-affiliate')->name('apps.pinter
 });
 
 // Finanza Finance Module Routes
-Route::middleware('auth')->prefix('apps/finance')->name('apps.finance.')->group(function () {
+Route::middleware(['auth', 'app.access:finance'])->prefix('apps/finance')->name('apps.finance.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Apps\FinanceController::class, 'index'])->name('index');
     Route::get('/bills', [\App\Http\Controllers\Apps\FinanceController::class, 'bills'])->name('bills');
     Route::post('/bills', [\App\Http\Controllers\Apps\FinanceController::class, 'storeBill'])->name('bills.store');
