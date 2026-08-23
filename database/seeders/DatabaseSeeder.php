@@ -50,10 +50,10 @@ class DatabaseSeeder extends Seeder
         $finance = App::updateOrCreate(
             ['code' => 'finance'],
             [
-                'name' => 'Finance & Accounting',
-                'url' => 'https://finance.bgportal.test',
-                'icon' => 'bi bi-currency-dollar',
-                'description' => 'Sistem Keuangan, Pembukuan & Laporan',
+                'name' => 'Finanza Keuangan & Anggaran',
+                'url' => '/apps/finance',
+                'icon' => 'bi bi-wallet2',
+                'description' => 'Pencatatan Keuangan, Target Anggaran & Tabungan Personal/Shared',
                 'is_active' => true,
                 'sort_order' => 2,
             ]
@@ -95,7 +95,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Assign access to regular staff user (HRIS, Inventory, POS & Pinterest)
-        $staff->apps()->sync([$hris->id, $inventory->id, $pos->id, $pinterest->id]);
+        // Assign access to regular staff user (HRIS, Finance, Inventory, POS & Pinterest)
+        $staff->apps()->sync([$hris->id, $finance->id, $inventory->id, $pos->id, $pinterest->id]);
     }
 }

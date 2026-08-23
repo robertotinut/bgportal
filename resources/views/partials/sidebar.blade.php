@@ -92,6 +92,25 @@
                         <span class="pe-nav-content">Log & Riwayat Posting</span>
                     </a>
                 </li>
+            @elseif (request()->is('apps/finance*'))
+                <!-- Finanza Specific Contextual Sidebar -->
+                <li class="pe-menu-title px-4 py-2">
+                    <a href="{{ route('dashboard') }}" class="btn btn-outline-primary btn-sm w-100 fw-bold d-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-arrow-left"></i>
+                        <span>Kembali ke Central</span>
+                    </a>
+                </li>
+
+                <li class="pe-menu-title text-warning fw-bold mt-2">
+                    <i class="bi bi-wallet2 me-1"></i> Finanza Keuangan
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.finance.index') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.index') ? 'active' : '' }}">
+                        <i class="bi bi-pie-chart-fill pe-nav-icon text-warning"></i>
+                        <span class="pe-nav-content">Anggaran & Tabungan</span>
+                    </a>
+                </li>
             @else
                 <!-- Central Hub Sidebar -->
                 <li class="pe-slide">

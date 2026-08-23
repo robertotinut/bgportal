@@ -54,6 +54,15 @@ Route::middleware('auth')->prefix('apps/pinterest-affiliate')->name('apps.pinter
     Route::get('/logs', [PinterestAffiliateController::class, 'logs'])->name('logs');
 });
 
+// Finanza Finance Module Routes
+Route::middleware('auth')->prefix('apps/finance')->name('apps.finance.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Apps\FinanceController::class, 'index'])->name('index');
+    Route::post('/transactions', [\App\Http\Controllers\Apps\FinanceController::class, 'storeTransaction'])->name('transactions.store');
+    Route::put('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'updateTransaction'])->name('transactions.update');
+    Route::delete('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'destroyTransaction'])->name('transactions.destroy');
+    Route::put('/target/{budget}', [\App\Http\Controllers\Apps\FinanceController::class, 'updateTarget'])->name('target.update');
+});
+
 // Protected Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('apps', AppManagementController::class);
