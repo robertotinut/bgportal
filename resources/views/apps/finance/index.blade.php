@@ -18,6 +18,32 @@
             display: none !important;
         }
 
+        /* Prevent button text wrapping into multi-lines */
+        .btn-nowrap {
+            white-space: nowrap !important;
+            flex-shrink: 0;
+        }
+
+        .action-dot-btn {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        .avatar-wallet {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
         /* Mobile Adjustments */
         @media (max-width: 991.98px) {
             header.app-header,
@@ -101,7 +127,7 @@
         }
 
         .finanza-mobile-bottom-nav .nav-item-link.active {
-            color: #0d6efd;
+            color: #f06548;
             font-weight: 700;
         }
 
@@ -114,25 +140,20 @@
     <div class="finanza-container p-2 p-md-3">
         <div class="container-fluid max-w-1000px mx-auto px-0 px-md-3">
 
-            <!-- Clean App Header -->
-            <div class="d-flex align-items-center justify-content-between mb-4">
+            <!-- Clean Top App Header (Optimized for Mobile & Desktop) -->
+            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
-                    <h4 class="fw-bold mb-1 text-dark">Beranda Keuangan</h4>
-                    <p class="text-muted fs-13 mb-0">Kelola saldo, dompet, dan pencatatan transaksi Anda</p>
+                    <h4 class="fw-bold mb-0 text-dark">Beranda Keuangan</h4>
+                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Kelola saldo, dompet, dan pencatatan transaksi Anda</p>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#addWalletModal">
-                        <i class="bi bi-plus-lg me-1"></i> Tambah Rekening
-                    </button>
-                    <button type="button" class="btn btn-primary rounded-pill btn-sm fw-semibold px-3" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                        <i class="bi bi-plus-circle me-1"></i> Catat Transaksi
-                    </button>
-                </div>
+                <button type="button" class="btn btn-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    <i class="bi bi-plus-lg me-1"></i> Catat
+                </button>
             </div>
 
             <!-- Success Alert -->
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4 border-0 rounded-4 shadow-sm" role="alert">
+                <div class="alert alert-success alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -159,10 +180,10 @@
             </div>
 
             <!-- 2. Rekening & Dompet Section (With Full CRUD: Add, Edit, Delete) -->
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h5 class="fw-bold mb-0 text-dark">Rekening & Dompet</h5>
-                <button type="button" class="btn btn-sm btn-link text-primary fw-semibold p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#addWalletModal">
-                    + Tambah Rekening Baru
+            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                <h5 class="fw-bold mb-0 text-dark fs-16">Rekening & Dompet</h5>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 btn-nowrap fw-semibold fs-12" data-bs-toggle="modal" data-bs-target="#addWalletModal">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah
                 </button>
             </div>
 
@@ -170,9 +191,9 @@
                 @forelse ($wallets as $w)
                     <div class="col-12 col-sm-6 col-md-4">
                         <div class="card border shadow-sm rounded-4 h-100 p-3">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center me-1 
+                                    <div class="avatar-wallet 
                                         {{ $w->type === 'cash' ? 'bg-success-subtle text-success' : ($w->type === 'bank' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info') }}">
                                         <i class="bi {{ $w->type === 'cash' ? 'bi-cash-stack' : ($w->type === 'bank' ? 'bi-bank' : 'bi-wallet2') }} fs-5"></i>
                                     </div>
@@ -183,7 +204,7 @@
 
                                 <!-- Actions Dropdown for Edit & Delete -->
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn btn-light action-dot-btn text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="bi bi-three-dots-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end border-0 shadow rounded-3">
@@ -205,8 +226,8 @@
                                 </div>
                             </div>
 
-                            <h6 class="fw-bold text-dark mb-1 fs-15 text-truncate">{{ $w->name }}</h6>
-                            <h4 class="fw-bold text-primary mb-0">Rp {{ number_format($w->balance, 0, ',', '.') }}</h4>
+                            <div class="text-muted fs-13 text-truncate mb-1">{{ $w->name }}</div>
+                            <h4 class="fw-bold text-dark mb-0">Rp {{ number_format($w->balance, 0, ',', '.') }}</h4>
                         </div>
                     </div>
 
@@ -251,16 +272,16 @@
                 @empty
                     <div class="col-12">
                         <div class="card border shadow-sm rounded-4 p-4 text-center text-muted">
-                            Belum ada rekening/dompet. Klik <strong>+ Tambah Rekening Baru</strong> untuk membuat.
+                            Belum ada rekening/dompet. Klik <strong>+ Tambah</strong> untuk membuat.
                         </div>
                     </div>
                 @endforelse
             </div>
 
             <!-- 3. Mutasi Transaksi Terbaru -->
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h5 class="fw-bold mb-0 text-dark">Mutasi Transaksi Terbaru</h5>
-                <a href="{{ route('apps.finance.budgets') }}" class="fs-13 text-primary fw-semibold text-decoration-none">Lihat Anggaran Target &rarr;</a>
+            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                <h5 class="fw-bold mb-0 text-dark fs-16">Mutasi Transaksi Terbaru</h5>
+                <a href="{{ route('apps.finance.budgets') }}" class="fs-12 text-primary fw-semibold text-decoration-none btn-nowrap">Lihat Anggaran Target &rarr;</a>
             </div>
 
             <div class="mb-5">
@@ -269,7 +290,7 @@
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <h6 class="fw-bold mb-0 text-dark fs-15">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
+                                    <h6 class="fw-bold mb-0 text-dark fs-14">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
                                     <span class="badge {{ $t->type === 'expense' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success' }} fs-11">
                                         {{ $t->type === 'income' ? 'Pemasukan' : ($t->type === 'expense' ? 'Pengeluaran' : 'Tabungan') }}
                                     </span>
@@ -287,9 +308,9 @@
 
                             <div class="d-flex align-items-center">
                                 @if ($t->type === 'expense')
-                                    <span class="text-danger fw-bold fs-15 me-3">-Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
+                                    <span class="text-danger fw-bold fs-14 me-3 btn-nowrap">-Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
                                 @else
-                                    <span class="text-success fw-bold fs-15 me-3">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
+                                    <span class="text-success fw-bold fs-14 me-3 btn-nowrap">+Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
                                 @endif
 
                                 <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus transaksi ini?')">
