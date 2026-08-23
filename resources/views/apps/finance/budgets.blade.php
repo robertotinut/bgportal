@@ -6,21 +6,19 @@
 
 @section('content')
     <style>
-        /* Modern Premium Finanza UI Palette (Inspired by High-End Fintech Apps) */
+        /* Mobile-first Finanza Clean Integration with Fabkin Master Theme */
         .finanza-container {
-            background-color: #F8FAFC;
             min-height: 100vh;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', 'Inter', sans-serif;
-            padding-bottom: 90px !important;
-            color: #0F172A;
+            padding-bottom: 30px;
         }
 
-        /* Complete Removal of Master Topbar, Breadcrumbs & Sidebars for Finanza */
+        /* Complete Removal of Breadcrumbs on Finanza */
         nav[aria-label="breadcrumb"],
         div.d-flex.align-items-center.mt-2.mb-2 {
             display: none !important;
         }
 
+        /* Mobile Adjustments */
         @media (max-width: 991.98px) {
             header.app-header,
             #appHeader,
@@ -55,145 +53,11 @@
 
             .finanza-container {
                 padding-top: 15px !important;
+                padding-bottom: 90px !important;
             }
-        }
 
-        .card-clean {
-            background-color: #FFFFFF;
-            border-radius: 24px;
-            border: 1px solid #F1F5F9;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-        }
-
-        /* Target Card - Midnight Indigo Hero Theme */
-        .card-target-indigo {
-            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
-            color: #FFFFFF;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 15px 35px rgba(30, 27, 75, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-target-indigo::after {
-            content: '';
-            position: absolute;
-            top: -40%;
-            right: -20%;
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, rgba(255,255,255,0) 70%);
-            pointer-events: none;
-        }
-
-        .nav-pill-slate {
-            background-color: #E2E8F0;
-            border-radius: 30px;
-            padding: 5px;
-            display: inline-flex;
-            width: auto;
-            max-width: 100%;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .nav-pill-slate .nav-link {
-            border-radius: 25px;
-            color: #64748B;
-            font-weight: 600;
-            padding: 8px 18px;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        .nav-pill-slate .nav-link.active {
-            background-color: #FFFFFF;
-            color: #312E81;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .btn-finanza-primary {
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
-            color: #FFFFFF;
-            border-radius: 25px;
-            font-weight: 600;
-            padding: 8px 22px;
-            border: none;
-            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
-        }
-
-        .btn-finanza-primary:hover {
-            background: linear-gradient(135deg, #4338CA 0%, #2563EB 100%);
-            color: #FFFFFF;
-        }
-
-        .btn-glass-target {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            color: #FFFFFF;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 20px;
-            padding: 6px 16px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .metric-subcard {
-            background-color: #FFFFFF;
-            border-radius: 16px;
-            padding: 14px 16px;
-            color: #0F172A;
-        }
-
-        .history-item {
-            background-color: #FFFFFF;
-            border-radius: 20px;
-            padding: 16px 20px;
-            margin-bottom: 12px;
-            border: 1px solid #F1F5F9;
-        }
-
-        .text-income-green {
-            color: #10B981;
-            font-weight: 700;
-        }
-
-        .btn-action-delete {
-            color: #94A3B8;
-            font-size: 16px;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-        .btn-action-delete:hover {
-            color: #EF4444;
-        }
-
-        /* Mobile Fixed Bottom Navigation Bar (Hidden on Desktop!) */
-        .finanza-mobile-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid #F1F5F9;
-            box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
-            z-index: 1030;
-            display: none;
-            align-items: center;
-            justify-content: space-around;
-            padding: 0 10px;
-        }
-
-        @media (max-width: 991.98px) {
             .finanza-mobile-bottom-nav {
                 display: flex !important;
-            }
-            .finanza-container {
-                padding-bottom: 90px !important;
             }
         }
 
@@ -206,12 +70,56 @@
             }
         }
 
+        .nav-pill-fabkin {
+            background-color: #E9ECEF;
+            border-radius: 30px;
+            padding: 5px;
+            display: inline-flex;
+            width: auto;
+            max-width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .nav-pill-fabkin .nav-link {
+            border-radius: 25px;
+            color: #495057;
+            font-weight: 600;
+            padding: 8px 18px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .nav-pill-fabkin .nav-link.active {
+            background-color: #0d6efd;
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
+        }
+
+        /* Mobile Fixed Bottom Navigation Bar */
+        .finanza-mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background-color: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid #E5E7EB;
+            box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
+            z-index: 1030;
+            display: none;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 10px;
+        }
+
         .finanza-mobile-bottom-nav .nav-item-link {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #94A3B8;
+            color: #6C757D;
             text-decoration: none;
             font-size: 11px;
             font-weight: 600;
@@ -219,7 +127,8 @@
         }
 
         .finanza-mobile-bottom-nav .nav-item-link.active {
-            color: #4F46E5;
+            color: #0d6efd;
+            font-weight: 700;
         }
 
         .finanza-mobile-bottom-nav .nav-item-link i {
@@ -228,62 +137,64 @@
         }
     </style>
 
-    <div class="finanza-container p-3 p-md-4">
-        <div class="container-fluid max-w-700px mx-auto px-0 px-md-3">
+    <div class="finanza-container p-2 p-md-3">
+        <div class="container-fluid max-w-1000px mx-auto px-0 px-md-3">
 
             <!-- Clean App Header -->
-            <div class="d-flex align-items-center justify-content-between mb-3 px-2">
-                <h4 class="fw-bold mb-0 text-slate-900">Target Anggaran</h4>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1 text-dark">Target Anggaran & Tabungan</h4>
+                    <p class="text-muted fs-13 mb-0">Pantau pencapaian target tabungan impian Anda</p>
+                </div>
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-outline-indigo btn-sm rounded-pill fw-semibold border-indigo-200 text-indigo-600" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill fw-semibold" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
                         <i class="bi bi-plus-lg me-1"></i> Target Baru
                     </button>
                     <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#editTargetModal">
-                        <i class="bi bi-three-dots"></i>
+                        <i class="bi bi-three-dots-vertical"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Success Alert -->
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-3 border-0 rounded-4 shadow-sm" role="alert">
+                <div class="alert alert-success alert-dismissible fade show mb-4 border-0 rounded-4 shadow-sm" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             <!-- 1. Top Donut Summary Card -->
-            <div class="card-clean p-4 mb-4">
+            <div class="card border shadow-sm rounded-4 p-4 mb-4">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-3">
-                        <!-- Donut Progress SVG -->
                         <div class="position-relative d-inline-flex align-items-center justify-content-center flex-shrink-0">
                             <svg width="75" height="75" viewBox="0 0 36 36" class="circular-chart">
-                                <path class="circle-bg" stroke="#F1F5F9" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path class="circle" stroke="#4F46E5" stroke-linecap="round" stroke-dasharray="{{ $percentage }}, 100" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle-bg" stroke="#E9ECEF" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" stroke="#0d6efd" stroke-linecap="round" stroke-dasharray="{{ $percentage }}, 100" stroke-width="4" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                             </svg>
-                            <span class="position-absolute fs-13 fw-bold text-slate-800">{{ $percentage }}%</span>
+                            <span class="position-absolute fs-13 fw-bold text-dark">{{ $percentage }}%</span>
                         </div>
 
                         <div>
-                            <h3 class="fw-bold mb-1 text-slate-900 fs-20">
+                            <h3 class="fw-bold mb-1 text-dark fs-20">
                                 Rp {{ number_format($activeBudget->collected_amount, 0, ',', '.') }}
                             </h3>
-                            <p class="text-slate-500 fs-13 mb-1">
+                            <p class="text-muted fs-13 mb-1">
                                 realisasi dari <strong>Rp {{ number_format($activeBudget->target_amount, 0, ',', '.') }}</strong>
                             </p>
-                            <div class="d-flex align-items-center gap-2 fs-12 text-slate-500 flex-wrap">
-                                <span><i class="bi bi-circle-fill text-amber-500 me-1 fs-10"></i> Est. Rp {{ number_format($activeBudget->target_amount * 0.65 / 1000000, 1) }}jt</span>
-                                <span><i class="bi bi-circle-fill text-emerald-500 me-1 fs-10"></i> Sisa Rp {{ number_format($remainingAmount / 1000000, 1) }}jt</span>
+                            <div class="d-flex align-items-center gap-2 fs-12 text-muted flex-wrap">
+                                <span><i class="bi bi-circle-fill text-warning me-1 fs-10"></i> Est. Rp {{ number_format($activeBudget->target_amount * 0.65 / 1000000, 1) }}jt</span>
+                                <span><i class="bi bi-circle-fill text-success me-1 fs-10"></i> Sisa Rp {{ number_format($remainingAmount / 1000000, 1) }}jt</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. Navigation Category / Budget Tabs (Horizontal Scroll) -->
+            <!-- 2. Navigation Category / Budget Tabs -->
             <div class="d-flex justify-content-start mb-4 overflow-auto pb-1">
-                <ul class="nav nav-pill-slate">
+                <ul class="nav nav-pill-fabkin">
                     @foreach ($budgets as $b)
                         <li class="nav-item">
                             <a class="nav-link {{ $activeBudget->id === $b->id ? 'active' : '' }}" href="{{ route('apps.finance.budgets', ['budget_id' => $b->id]) }}">
@@ -292,29 +203,29 @@
                         </li>
                     @endforeach
                     <li class="nav-item">
-                        <a class="nav-link text-indigo-600 fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
+                        <a class="nav-link text-primary fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
                             + Target Baru
                         </a>
                     </li>
                 </ul>
             </div>
 
-            <!-- 3. Target Midnight Indigo Hero Card -->
-            <div class="card-target-indigo mb-4">
+            <!-- 3. Target Fabkin Primary Card -->
+            <div class="card bg-primary text-white rounded-4 border-0 shadow-sm p-4 mb-4">
                 <div class="d-flex align-items-start justify-content-between mb-3">
                     <div>
                         <div class="fs-13 opacity-75 mb-1">Dana terkumpul (Net)</div>
-                        <h2 class="fw-bold mb-0 text-white fs-28">Rp{{ number_format($activeBudget->collected_amount, 0, ',', '.') }}</h2>
+                        <h2 class="fw-bold mb-0 text-white fs-28">Rp {{ number_format($activeBudget->collected_amount, 0, ',', '.') }}</h2>
                     </div>
-                    <button type="button" class="btn btn-glass-target" data-bs-toggle="modal" data-bs-target="#editTargetModal">
+                    <button type="button" class="btn btn-outline-light btn-sm rounded-pill fw-semibold" data-bs-toggle="modal" data-bs-target="#editTargetModal">
                         Atur target
                     </button>
                 </div>
 
                 <!-- Progress Bar -->
                 <div class="mb-3">
-                    <div class="progress bg-white bg-opacity-20 rounded-pill" style="height: 8px;">
-                        <div class="progress-bar bg-emerald-400 rounded-pill" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress bg-white bg-opacity-25 rounded-pill" style="height: 8px;">
+                        <div class="progress-bar bg-white rounded-pill" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="d-flex justify-content-between fs-12 opacity-90 mt-2">
                         <span><strong>{{ $percentage }}%</strong> terkumpul</span>
@@ -325,58 +236,59 @@
                 <!-- Two Bottom Metric Cards -->
                 <div class="row g-3">
                     <div class="col-6">
-                        <div class="metric-subcard">
-                            <div class="fs-12 text-slate-500 mb-1">Masih dibutuhkan</div>
-                            <div class="fw-bold fs-15 text-slate-900">Rp {{ number_format($remainingAmount / 1000000, 1) }}jt</div>
+                        <div class="bg-white text-dark rounded-3 p-3">
+                            <div class="fs-12 text-muted mb-1">Masih dibutuhkan</div>
+                            <div class="fw-bold fs-15">Rp {{ number_format($remainingAmount / 1000000, 1) }}jt</div>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="metric-subcard">
-                            <div class="fs-12 text-slate-500 mb-1">Saran per bulan</div>
-                            <div class="fw-bold fs-15 text-slate-900">Rp {{ number_format($monthlySuggestion / 1000000, 1) }}jt</div>
+                        <div class="bg-white text-dark rounded-3 p-3">
+                            <div class="fs-12 text-muted mb-1">Saran per bulan</div>
+                            <div class="fw-bold fs-15">Rp {{ number_format($monthlySuggestion / 1000000, 1) }}jt</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 4. Riwayat Tabungan Target Section -->
-            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <h5 class="fw-bold mb-0 text-slate-900">Riwayat tabungan</h5>
-                <button type="button" class="btn btn-finanza-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
-                    + Catat
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold mb-0 text-dark">Riwayat Tabungan</h5>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    + Catat Setoran
                 </button>
             </div>
 
-            <!-- Transaction List -->
             <div class="mb-5">
                 @forelse ($transactions as $t)
-                    <div class="history-item d-flex align-items-center justify-content-between">
-                        <div>
-                            <h6 class="fw-bold mb-1 text-slate-900 fs-15">{{ $t->contributor_name ?? 'Tabungan' }}</h6>
-                            <div class="fs-12 text-slate-400">
-                                {{ $t->transaction_date ? $t->transaction_date->format('j M Y') : '' }} 
-                                @if ($t->description)
-                                    <span class="ms-1">• {{ $t->description }}</span>
-                                @endif
+                    <div class="card border shadow-sm rounded-4 p-3 mb-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark fs-15">{{ $t->contributor_name ?? 'Tabungan' }}</h6>
+                                <div class="fs-12 text-muted">
+                                    {{ $t->transaction_date ? $t->transaction_date->format('j M Y') : '' }} 
+                                    @if ($t->description)
+                                        <span class="ms-1">• {{ $t->description }}</span>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="d-flex align-items-center">
-                            <span class="text-income-green fs-14 me-3">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
-                            
-                            <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pencatatan ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-action-delete" title="Hapus">&times;</button>
-                            </form>
+                            <div class="d-flex align-items-center">
+                                <span class="text-success fw-bold fs-15 me-3">+Rp {{ $t->amount >= 1000000 ? number_format($t->amount / 1000000, 1) . 'jt' : number_format($t->amount / 1000, 0) . 'rb' }}</span>
+                                
+                                <form action="{{ route('apps.finance.transactions.destroy', $t->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pencatatan ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-link text-muted p-0 fs-5" title="Hapus">&times;</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 @empty
-                    <div class="card-clean p-5 text-center text-slate-400">
-                        <i class="bi bi-wallet2 fs-1 mb-2 d-block text-slate-300"></i>
+                    <div class="card border shadow-sm rounded-4 p-4 text-center text-muted">
+                        <i class="bi bi-wallet2 fs-1 text-secondary mb-2 d-block"></i>
                         Belum ada riwayat tabungan pada target ini.
                         <div class="mt-2">
-                            <button type="button" class="btn btn-finanza-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ Catat Tabungan</button>
+                            <button type="button" class="btn btn-primary btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#addTransactionModal">+ Catat Tabungan</button>
                         </div>
                     </div>
                 @endforelse
@@ -385,7 +297,7 @@
         </div>
     </div>
 
-    <!-- Mobile Fixed Bottom Navigation Bar (Anggaran is Active HERE!) -->
+    <!-- Mobile Fixed Bottom Navigation Bar (Hidden on Desktop) -->
     <div class="finanza-mobile-bottom-nav">
         <a href="{{ route('apps.finance.index') }}" class="nav-item-link">
             <i class="bi bi-house-door"></i>
@@ -438,7 +350,7 @@
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-finanza-primary rounded-pill px-4">Simpan Tabungan</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Tabungan</button>
                     </div>
                 </form>
             </div>
@@ -467,7 +379,7 @@
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-finanza-primary rounded-pill px-4">Buat Target</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Buat Target</button>
                     </div>
                 </form>
             </div>
@@ -497,7 +409,7 @@
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-finanza-primary rounded-pill px-4">Simpan Target</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Simpan Target</button>
                     </div>
                 </form>
             </div>
@@ -513,11 +425,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
-                    <div class="avatar-lg rounded-circle bg-indigo-50 text-indigo-600 mx-auto d-flex align-items-center justify-content-center mb-3 fs-1 fw-bold">
+                    <div class="avatar-lg rounded-circle bg-primary-subtle text-primary mx-auto d-flex align-items-center justify-content-center mb-3 fs-1 fw-bold">
                         <i class="bi bi-person"></i>
                     </div>
-                    <h5 class="fw-bold text-slate-900 mb-1">{{ Auth::user()->name }}</h5>
-                    <p class="text-slate-500 fs-14 mb-4">{{ Auth::user()->email }}</p>
+                    <h5 class="fw-bold text-dark mb-1">{{ Auth::user()->name }}</h5>
+                    <p class="text-muted fs-14 mb-4">{{ Auth::user()->email }}</p>
 
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-primary btn-lg w-100 rounded-pill fw-bold py-2 mb-2">
                         <i class="bi bi-arrow-left me-1"></i> Kembali ke Central Hub Apps

@@ -99,7 +99,7 @@ class FinanceController extends Controller
         $userId = Auth::id();
         $this->initUserData();
 
-        $wallets = FinanceWallet::where('user_id', $userId)->get();
+        $wallets = FinanceWallet::where('user_id', $userId)->latest()->get();
         $totalBalance = $wallets->sum('balance');
 
         $currentMonth = now()->month;
@@ -134,6 +134,65 @@ class FinanceController extends Controller
             'recentTransactions',
             'budgets'
         ));
+    }
+
+    /**
+     * Store new Wallet / Rekening.
+     */
+    public function storeWallet(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:cash,bank,ewallet,investment',
+            'balance' => 'required|numeric|min:0',
+        ]);
+
+        FinanceWallet::create([
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+            'type' => $request->type,
+            'balance' => $request->balance,
+            'color' => '#0d6efd',
+        ]);
+
+        return redirect()->back()->with('success', 'Rekening/Dompet baru berhasil ditambahkan!');
+    }
+
+    /**
+     * Update Wallet / Rekening.
+     */
+    public function updateWallet(Request $request, FinanceWallet $wallet)
+    {
+        if ($wallet->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:cash,bank,ewallet,investment',
+            'balance' => 'required|numeric|min:0',
+        ]);
+
+        $wallet->update([
+            'name' => $request->name,
+            'type' => $request->type,
+            'balance' => $request->balance,
+        ]);
+
+        return redirect()->back()->with('success', 'Rekening/Dompet berhasil diperbarui!');
+    }
+
+    /**
+     * Delete Wallet / Rekening.
+     */
+    public function destroyWallet(FinanceWallet $wallet)
+    {
+        if ($wallet->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $wallet->delete();
+        return redirect()->back()->with('success', 'Rekening/Dompet berhasil dihapus!');
     }
 
     /**
