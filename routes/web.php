@@ -57,6 +57,7 @@ Route::middleware('auth')->prefix('apps/pinterest-affiliate')->name('apps.pinter
 // Finanza Finance Module Routes
 Route::middleware('auth')->prefix('apps/finance')->name('apps.finance.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Apps\FinanceController::class, 'index'])->name('index');
+    Route::get('/budgets', [\App\Http\Controllers\Apps\FinanceController::class, 'budgets'])->name('budgets');
     Route::post('/transactions', [\App\Http\Controllers\Apps\FinanceController::class, 'storeTransaction'])->name('transactions.store');
     Route::put('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'updateTransaction'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [\App\Http\Controllers\Apps\FinanceController::class, 'destroyTransaction'])->name('transactions.destroy');
