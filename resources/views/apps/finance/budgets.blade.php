@@ -394,7 +394,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Nominal Tabungan Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" class="form-control rounded-3" placeholder="Contoh: 500000" min="1000" required>
+                            <input type="text" name="amount" class="form-control rounded-3 rupiah-input" placeholder="Contoh: 500.000" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tanggal Transaksi <span class="text-danger">*</span></label>
@@ -431,7 +431,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Total Target Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="target_amount" class="form-control rounded-3" placeholder="Contoh: 50000000" min="100000" required>
+                            <input type="text" name="target_amount" class="form-control rounded-3 rupiah-input" placeholder="Contoh: 50.000.000" required>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
@@ -461,7 +461,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Total Target Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="target_amount" class="form-control rounded-3" value="{{ $activeBudget->target_amount }}" min="100000" required>
+                            <input type="text" name="target_amount" class="form-control rounded-3 rupiah-input" value="{{ number_format($activeBudget->target_amount, 0, ',', '.') }}" required>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 pt-0 d-flex justify-content-between">
@@ -558,5 +558,30 @@
                 }
             });
         }
+
+        // Live Rupiah Currency Masking
+        function formatRupiah(number) {
+            return number.toString().replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        document.querySelectorAll('.rupiah-input').forEach(function(input) {
+            input.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value) {
+                    this.value = formatRupiah(value);
+                } else {
+                    this.value = '';
+                }
+            });
+        });
+
+        // Strip non-numeric before submit
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function() {
+                form.querySelectorAll('.rupiah-input').forEach(function(input) {
+                    input.value = input.value.replace(/\D/g, '');
+                });
+            });
+        });
     </script>
 @endsection

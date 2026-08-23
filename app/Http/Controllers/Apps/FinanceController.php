@@ -298,6 +298,29 @@ class FinanceController extends Controller
                 ];
             })->sortByDesc('amount');
 
+        // Prepare Daily Chart Data for ApexCharts
+        $year = (int) substr($selectedMonth, 0, 4);
+        $month = (int) substr($selectedMonth, 5, 2);
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+        $dailyDates = [];
+        $dailyIncomeData = [];
+        $dailyExpenseData = [];
+
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $dateStr = sprintf('%04d-%02d-%02d', $year, $month, $d);
+            $dailyDates[] = sprintf('%02d %s', $d, date('M', mktime(0, 0, 0, $month, 10)));
+            $dailyIncomeData[] = (int) $transactions->where('type', 'income')->filter(function ($t) use ($dateStr) {
+                return $t->transaction_date && $t->transaction_date->format('Y-m-d') === $dateStr;
+            })->sum('amount');
+            $dailyExpenseData[] = (int) $transactions->where('type', 'expense')->filter(function ($t) use ($dateStr) {
+                return $t->transaction_date && $t->transaction_date->format('Y-m-d') === $dateStr;
+            })->sum('amount');
+        }
+
+        $donutLabels = $expenseCategories->pluck('category')->toArray();
+        $donutSeries = $expenseCategories->pluck('amount')->map(function ($amt) { return (int) $amt; })->toArray();
+
         $wallets = FinanceWallet::where('user_id', $userId)->get();
 
         return view('apps.finance.reports', compact(
@@ -310,7 +333,12 @@ class FinanceController extends Controller
             'selectedMonth',
             'selectedWalletId',
             'selectedType',
-            'wallets'
+            'wallets',
+            'dailyDates',
+            'dailyIncomeData',
+            'dailyExpenseData',
+            'donutLabels',
+            'donutSeries'
         ));
     }
 

@@ -75,7 +75,7 @@
             }
         }
 
-        /* Center Elevated Action Button */
+        /* Mobile Fixed Bottom Navigation Bar (With Center Action Button) */
         .finanza-mobile-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -144,8 +144,8 @@
             <!-- Clean Top Header -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
-                    <h4 class="fw-bold mb-0 text-dark">Laporan Keuangan</h4>
-                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Analisis pemasukan, pengeluaran, dan riwayat mutasi kas</p>
+                    <h4 class="fw-bold mb-0 text-dark">Laporan & Analitik Keuangan</h4>
+                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Analisis performa cashflow, grafik tren harian, dan mutasi</p>
                 </div>
                 <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 btn-nowrap fw-semibold fs-12" onclick="window.print()">
                     <i class="bi bi-printer me-1"></i> Cetak / PDF
@@ -233,25 +233,31 @@
                 </div>
             </div>
 
-            <!-- 2. Breakdown Kategori Pengeluaran (If any) -->
-            @if ($expenseCategories->count() > 0)
-                <div class="card border shadow-sm rounded-4 p-4 mb-4">
-                    <h6 class="fw-bold text-dark mb-3">Distribusi Kategori Pengeluaran</h6>
-                    <div class="row g-3">
-                        @foreach ($expenseCategories as $cat)
-                            <div class="col-12 col-md-6">
-                                <div class="d-flex justify-content-between fs-13 mb-1">
-                                    <span class="fw-semibold text-dark">{{ $cat['category'] }} ({{ $cat['count'] }}x)</span>
-                                    <span class="fw-bold text-danger">Rp {{ number_format($cat['amount'], 0, ',', '.') }} ({{ $cat['percentage'] }}%)</span>
-                                </div>
-                                <div class="progress rounded-pill" style="height: 6px;">
-                                    <div class="progress-bar bg-danger rounded-pill" style="width: {{ $cat['percentage'] }}%"></div>
-                                </div>
-                            </div>
-                        @endforeach
+            <!-- 2. Visual Charts (ApexCharts: Tren Harian & Donut Kategori) -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-lg-8">
+                    <div class="card border shadow-sm rounded-4 p-3 h-100">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold text-dark mb-0">Grafik Arus Kas Harian ({{ date('F Y', strtotime($selectedMonth . '-01')) }})</h6>
+                            <span class="badge bg-light text-muted fs-11">Pemasukan vs Pengeluaran</span>
+                        </div>
+                        <div id="dailyCashflowChart" style="min-height: 260px;"></div>
                     </div>
                 </div>
-            @endif
+
+                <div class="col-12 col-lg-4">
+                    <div class="card border shadow-sm rounded-4 p-3 h-100">
+                        <h6 class="fw-bold text-dark mb-2">Distribusi Pengeluaran</h6>
+                        @if (!empty($donutSeries) && count($donutSeries) > 0)
+                            <div id="categoryDonutChart" style="min-height: 260px;"></div>
+                        @else
+                            <div class="d-flex align-items-center justify-content-center h-100 text-muted fs-13 py-5">
+                                Belum ada data pengeluaran bulan ini.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
 
             <!-- 3. Rincian Mutasi Transaksi -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
@@ -358,6 +364,7 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         @if (session('success'))
@@ -398,6 +405,100 @@
                     form.submit();
                 }
             });
+        }
+
+        // Initialize ApexCharts Daily Cashflow
+        const dailyDates = @json($dailyDates);
+        const incomeData = @json($dailyIncomeData);
+        const expenseData = @json($dailyExpenseData);
+
+        const optionsDaily = {
+            series: [{
+                name: 'Pemasukan',
+                data: incomeData
+            }, {
+                name: 'Pengeluaran',
+                data: expenseData
+            }],
+            chart: {
+                type: 'area',
+                height: 260,
+                toolbar: { show: false },
+                zoom: { enabled: false }
+            },
+            colors: ['#10B981', '#EF4444'],
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 2 },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.05,
+                    stops: [0, 90, 100]
+                }
+            },
+            xaxis: {
+                categories: dailyDates,
+                labels: {
+                    style: { fontSize: '10px' },
+                    rotate: -45,
+                    rotateAlways: false
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) {
+                        return val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val);
+                    }
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return 'Rp ' + val.toLocaleString('id-ID');
+                    }
+                }
+            }
+        };
+
+        const chartDaily = new ApexCharts(document.querySelector("#dailyCashflowChart"), optionsDaily);
+        chartDaily.render();
+
+        // Initialize ApexCharts Category Donut
+        const donutLabels = @json($donutLabels);
+        const donutSeries = @json($donutSeries);
+
+        if (donutSeries && donutSeries.length > 0) {
+            const optionsDonut = {
+                series: donutSeries,
+                labels: donutLabels,
+                chart: {
+                    type: 'donut',
+                    height: 260
+                },
+                colors: ['#EF4444', '#F59E0B', '#3B82F6', '#10B981', '#8B5CF6', '#EC4899', '#6B7280'],
+                legend: {
+                    position: 'bottom',
+                    fontSize: '11px'
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                        return Math.round(val) + "%";
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return 'Rp ' + val.toLocaleString('id-ID');
+                        }
+                    }
+                }
+            };
+
+            const chartDonut = new ApexCharts(document.querySelector("#categoryDonutChart"), optionsDonut);
+            chartDonut.render();
         }
     </script>
 @endsection

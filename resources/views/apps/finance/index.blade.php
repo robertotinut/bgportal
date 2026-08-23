@@ -297,7 +297,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Saldo (Rp) <span class="text-danger">*</span></label>
-                                            <input type="number" name="balance" class="form-control rounded-3" value="{{ $w->balance }}" min="0" required>
+                                            <input type="text" name="balance" class="form-control rounded-3 rupiah-input" value="{{ number_format($w->balance, 0, ',', '.') }}" required>
                                         </div>
                                     </div>
                                     <div class="modal-footer border-top-0 pt-0">
@@ -438,7 +438,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Nominal Transfer Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" class="form-control rounded-3" placeholder="Contoh: 200000" min="1000" required>
+                            <input type="text" name="amount" class="form-control rounded-3 rupiah-input" placeholder="Contoh: 200.000" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tanggal Transfer <span class="text-danger">*</span></label>
@@ -499,7 +499,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Nominal Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="amount" id="trxAmount" class="form-control rounded-3" placeholder="Contoh: 500000" min="1000" required>
+                            <input type="text" name="amount" id="trxAmount" class="form-control rounded-3 rupiah-input" placeholder="Contoh: 500.000" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tanggal Transaksi <span class="text-danger">*</span></label>
@@ -566,7 +566,7 @@
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fs-12 fw-semibold mb-1">Total Pengeluaran Rp</label>
-                                <input type="number" name="amount" id="aiAmount" class="form-control form-control-sm rounded-3" required>
+                                <input type="text" name="amount" id="aiAmount" class="form-control form-control-sm rounded-3 rupiah-input" required>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label fs-12 fw-semibold mb-1">Tanggal</label>
@@ -612,7 +612,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Saldo Awal Rp <span class="text-danger">*</span></label>
-                            <input type="number" name="balance" class="form-control rounded-3" placeholder="Contoh: 1000000" min="0" required>
+                            <input type="text" name="balance" class="form-control rounded-3 rupiah-input" placeholder="Contoh: 1.000.000" required>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0 pt-0">
@@ -693,6 +693,31 @@
             });
         }
 
+        // Live Rupiah Currency Masking
+        function formatRupiah(number) {
+            return number.toString().replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        document.querySelectorAll('.rupiah-input').forEach(function(input) {
+            input.addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value) {
+                    this.value = formatRupiah(value);
+                } else {
+                    this.value = '';
+                }
+            });
+        });
+
+        // Strip non-numeric before submit
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function() {
+                form.querySelectorAll('.rupiah-input').forEach(function(input) {
+                    input.value = input.value.replace(/\D/g, '');
+                });
+            });
+        });
+
         function toggleTransactionTarget() {
             const type = document.getElementById('trxType').value;
             const budgetDiv = document.getElementById('budgetSelectDiv');
@@ -725,7 +750,7 @@
                     document.getElementById('scanLoading').classList.add('d-none');
                     if (data.status === 'success' && data.data) {
                         const d = data.data;
-                        document.getElementById('aiAmount').value = d.amount || '';
+                        document.getElementById('aiAmount').value = d.amount ? formatRupiah(d.amount) : '';
                         document.getElementById('aiDate').value = d.date || '{{ date("Y-m-d") }}';
                         
                         let storeName = 'Belanja';
