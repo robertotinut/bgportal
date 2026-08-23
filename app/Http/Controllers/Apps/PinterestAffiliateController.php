@@ -10,6 +10,7 @@ use App\Models\PinterestAccount;
 use App\Services\ShopeeScraperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class PinterestAffiliateController extends Controller
 {
@@ -260,5 +261,46 @@ class PinterestAffiliateController extends Controller
             ->paginate(20);
 
         return view('apps.pinterest-affiliate.logs', compact('logs'));
+    }
+
+    /**
+     * Fetch Pinterest Boards using Access Token via Pinterest API v5.
+     */
+    public function fetchBoards(Request $request)
+    {
+        $request->validate([
+            'access_token' => 'required|string',
+        ]);
+
+        try {
+            $response = Http::withToken(trim($request->access_token))
+                ->get('https://api.pinterest.com/v5/boards');
+
+            if ($response->successful()) {
+                $items = $response->json('items') ?? [];
+                $boards = array_map(function ($b) {
+                    return [
+                        'id' => $b['id'],
+                        'name' => $b['name'],
+                    ];
+                }, $items);
+
+                return response()->json([
+                    'success' => true,
+                    'boards' => $boards,
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data board dari Pinterest API. Pastikan Access Token valid dan memiliki scope boards:read.',
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

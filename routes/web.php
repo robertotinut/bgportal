@@ -41,6 +41,7 @@ Route::middleware('auth')->prefix('apps/pinterest-affiliate')->name('apps.pinter
     Route::get('/accounts', [PinterestAffiliateController::class, 'accounts'])->name('accounts');
     Route::post('/accounts', [PinterestAffiliateController::class, 'storeAccount'])->name('accounts.store');
     Route::delete('/accounts/{account}', [PinterestAffiliateController::class, 'destroyAccount'])->name('accounts.destroy');
+    Route::post('/fetch-boards', [PinterestAffiliateController::class, 'fetchBoards'])->name('fetch-boards');
 
     Route::get('/links', [PinterestAffiliateController::class, 'links'])->name('links');
     Route::post('/links', [PinterestAffiliateController::class, 'storeLink'])->name('links.store');

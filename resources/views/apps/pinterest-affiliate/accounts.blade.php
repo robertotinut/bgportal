@@ -95,24 +95,18 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="guideModalLabel"><i class="bi bi-book text-danger me-1"></i> Panduan Ambil Token & Board ID Pinterest</h5>
+                    <h5 class="modal-title fw-bold" id="guideModalLabel"><i class="bi bi-book text-danger me-1"></i> Panduan Ambil Token Pinterest</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <h6 class="fw-bold text-danger mb-2">1. Cara Mendapatkan Access Token Pinterest API:</h6>
-                    <ol class="mb-4">
-                        <li class="mb-1">Buka Developer Portal di <a href="https://developers.pinterest.com" target="_blank" class="fw-bold">developers.pinterest.com</a> dan login dengan Akun Bisnis Pinterest Anda.</li>
-                        <li class="mb-1">Masuk ke menu <strong>Apps</strong> -> klik <strong>Create app</strong>.</li>
-                        <li class="mb-1">Buka aplikasi yang baru dibuat -> pilih menu <strong>Generate access token</strong>.</li>
-                        <li class="mb-1">Centang izin (scopes): <code>boards:read</code>, <code>boards:write</code>, <code>pins:read</code>, <code>pins:write</code>.</li>
-                        <li class="mb-1">Klik <strong>Generate token</strong> lalu salin string token (misal: <code>pina_...</code>) ke kolom Access Token.</li>
-                    </ol>
-
-                    <h6 class="fw-bold text-danger mb-2">2. Cara Mendapatkan Board Target ID:</h6>
-                    <ol class="mb-0">
-                        <li class="mb-1">Buka API Explorer di <a href="https://developers.pinterest.com/tools/api-explorer/" target="_blank" class="fw-bold">developers.pinterest.com/tools/api-explorer/</a>.</li>
-                        <li class="mb-1">Pilih endpoint <strong>GET /v5/boards</strong> dan tempelkan Access Token Anda.</li>
-                        <li class="mb-1">Klik <strong>Run</strong> -> Salin nilai angka <code>"id"</code> dari board yang ingin Anda jadikan tujuan posting.</li>
+                    <h6 class="fw-bold text-danger mb-2">Langkah Mudah Mendapatkan Access Token:</h6>
+                    <ol class="mb-3">
+                        <li class="mb-2">Buka Developer Portal di <a href="https://developers.pinterest.com/apps/" target="_blank" class="fw-bold text-danger">developers.pinterest.com/apps/</a> dan login dengan Akun Bisnis Pinterest Anda.</li>
+                        <li class="mb-2">Klik tombol <strong>Create app</strong> -> beri nama aplikasi (misal: <code>BGPortal Affiliate</code>).</li>
+                        <li class="mb-2">Masuk ke aplikasi -> buka tab <strong>Generate access token</strong>.</li>
+                        <li class="mb-2">Centang semua izin (scopes): <code>boards:read</code>, <code>boards:write</code>, <code>pins:read</code>, <code>pins:write</code>.</li>
+                        <li class="mb-2">Klik <strong>Generate token</strong> lalu salin string token (misal: <code>pina_...</code>) ke kolom Access Token di form bawah.</li>
+                        <li class="mb-0">Setelah memasukkan Access Token, klik tombol <strong>"Cek & Load Daftar Board"</strong> agar sistem otomatis mengambilkan seluruh Board ID milik Anda!</li>
                     </ol>
                 </div>
                 <div class="modal-footer">
@@ -142,16 +136,27 @@
                             <input type="text" name="username" id="username" class="form-control" placeholder="Contoh: fashion_ootd_id">
                         </div>
                         <div class="mb-3">
+                            <label for="access_token" class="form-label">Access Token Pinterest API <span class="text-danger">*</span></label>
+                            <textarea name="access_token" id="access_token" class="form-control" rows="3" placeholder="Masukkan Access Token (misal: pina_...)" required></textarea>
+                            <button type="button" id="btnFetchBoards" class="btn btn-sm btn-outline-danger w-100 mt-2 fw-semibold">
+                                <i class="bi bi-arrow-repeat me-1"></i> Cek & Load Daftar Board Otomatis
+                            </button>
+                        </div>
+
+                        <div id="boardSelectContainer" class="mb-3 d-none">
+                            <label for="board_select" class="form-label">Pilih Board Target dari Pinterest <span class="text-danger">*</span></label>
+                            <select id="board_select" class="form-select">
+                                <option value="">-- Pilih Board --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="board_id" class="form-label">Board Target ID <span class="text-danger">*</span></label>
-                            <input type="text" name="board_id" id="board_id" class="form-control" placeholder="Contoh: 10423984920481" required>
+                            <input type="text" name="board_id" id="board_id" class="form-control" placeholder="ID Board (akan terisi otomatis)" required>
                         </div>
                         <div class="mb-3">
                             <label for="board_name" class="form-label">Nama Board Target</label>
-                            <input type="text" name="board_name" id="board_name" class="form-control" placeholder="Contoh: Rekomendasi Baju Shopee">
-                        </div>
-                        <div class="mb-3">
-                            <label for="access_token" class="form-label">Access Token Pinterest API <span class="text-danger">*</span></label>
-                            <textarea name="access_token" id="access_token" class="form-control" rows="3" placeholder="Masukkan Access Token / API Key Pinterest" required></textarea>
+                            <input type="text" name="board_name" id="board_name" class="form-control" placeholder="Nama Board (akan terisi otomatis)">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -166,4 +171,62 @@
 
 @section('js')
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        document.getElementById('btnFetchBoards').addEventListener('click', function() {
+            const token = document.getElementById('access_token').value.trim();
+            if (!token) {
+                alert('Silakan masukkan Access Token Pinterest terlebih dahulu!');
+                return;
+            }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Mengambil data Board...';
+
+            fetch("{{ route('apps.pinterest.fetch-boards') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ access_token: token })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Board Berhasil Dimuat!';
+
+                if (data.success && data.boards.length > 0) {
+                    const container = document.getElementById('boardSelectContainer');
+                    const select = document.getElementById('board_select');
+                    select.innerHTML = '<option value="">-- Pilih Board Target --</option>';
+
+                    data.boards.forEach(b => {
+                        const opt = document.createElement('option');
+                        opt.value = b.id;
+                        opt.textContent = `${b.name} (ID: ${b.id})`;
+                        opt.dataset.name = b.name;
+                        select.appendChild(opt);
+                    });
+
+                    container.classList.remove('d-none');
+
+                    select.addEventListener('change', function() {
+                        const selectedOpt = this.options[this.selectedIndex];
+                        if (selectedOpt && selectedOpt.value) {
+                            document.getElementById('board_id').value = selectedOpt.value;
+                            document.getElementById('board_name').value = selectedOpt.dataset.name || selectedOpt.textContent;
+                        }
+                    });
+                } else {
+                    alert(data.message || 'Tidak ada Board yang ditemukan pada akun Pinterest ini.');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Cek & Load Daftar Board Otomatis';
+                alert('Gagal menghubungi Pinterest API: ' + err.message);
+            });
+        });
+    </script>
 @endsection
