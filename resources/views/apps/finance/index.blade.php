@@ -177,15 +177,20 @@
 
             <!-- Clean Top App Header -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <div>
-                    <h4 class="fw-bold mb-0 text-dark">Beranda Keuangan</h4>
-                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Kelola saldo, dompet, dan mutasi keuangan Anda</p>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('dashboard') }}" class="btn btn-light rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;" title="Kembali ke Central Hub">
+                        <i class="bi bi-arrow-left fs-5 text-dark"></i>
+                    </a>
+                    <div>
+                        <h4 class="fw-bold mb-0 text-dark fs-18">Beranda Keuangan</h4>
+                        <p class="text-muted fs-12 mb-0 d-none d-sm-block">Kelola saldo, dompet, dan mutasi keuangan Anda</p>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
-                        <i class="bi bi-camera me-1"></i> Scan Struk AI
+                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm px-2.5 px-sm-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#scanReceiptModal">
+                        <i class="bi bi-camera me-1"></i> Scan Struk
                     </button>
-                    <button type="button" class="btn btn-primary rounded-pill btn-sm px-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                    <button type="button" class="btn btn-primary rounded-pill btn-sm px-2.5 px-sm-3 py-1.5 btn-nowrap fw-semibold shadow-sm fs-12" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
                         <i class="bi bi-plus-lg me-1"></i> Catat
                     </button>
                 </div>

@@ -179,9 +179,14 @@
 
             <!-- Clean App Header -->
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
-                <div>
-                    <h4 class="fw-bold mb-0 text-dark">Target Anggaran</h4>
-                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Pantau pencapaian target tabungan impian Anda</p>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('dashboard') }}" class="btn btn-light rounded-circle shadow-sm d-inline-flex align-items-center justify-content-center" style="width: 38px; height: 38px; flex-shrink: 0;" title="Kembali ke Central Hub">
+                        <i class="bi bi-arrow-left fs-5 text-dark"></i>
+                    </a>
+                    <div>
+                        <h4 class="fw-bold mb-0 text-dark fs-18">Target Anggaran</h4>
+                        <p class="text-muted fs-12 mb-0 d-none d-sm-block">Pantau pencapaian target tabungan impian Anda</p>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 btn-nowrap fw-semibold fs-12" data-bs-toggle="modal" data-bs-target="#newBudgetModal">
