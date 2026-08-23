@@ -14,11 +14,16 @@
         @endif
 
         <div class="card border shadow-sm">
-            <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+            <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <h5 class="card-title mb-0 fw-bold"><i class="bi bi-person-badge me-1 text-danger"></i> Daftar Akun Pinterest Terhubung</h5>
-                <button type="button" class="btn btn-danger btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addAccountModal">
-                    <i class="bi bi-plus-lg me-1"></i> Tambah Akun Baru
-                </button>
+                <div>
+                    <button type="button" class="btn btn-outline-danger btn-sm fw-bold me-2" data-bs-toggle="modal" data-bs-target="#guideModal">
+                        <i class="bi bi-question-circle me-1"></i> Panduan Ambil Token & Board ID
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addAccountModal">
+                        <i class="bi bi-plus-lg me-1"></i> Tambah Akun Baru
+                    </button>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -85,6 +90,38 @@
         </div>
     </div>
 
+    <!-- Modal Panduan Ambil Token -->
+    <div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="guideModalLabel"><i class="bi bi-book text-danger me-1"></i> Panduan Ambil Token & Board ID Pinterest</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold text-danger mb-2">1. Cara Mendapatkan Access Token Pinterest API:</h6>
+                    <ol class="mb-4">
+                        <li class="mb-1">Buka Developer Portal di <a href="https://developers.pinterest.com" target="_blank" class="fw-bold">developers.pinterest.com</a> dan login dengan Akun Bisnis Pinterest Anda.</li>
+                        <li class="mb-1">Masuk ke menu <strong>Apps</strong> -> klik <strong>Create app</strong>.</li>
+                        <li class="mb-1">Buka aplikasi yang baru dibuat -> pilih menu <strong>Generate access token</strong>.</li>
+                        <li class="mb-1">Centang izin (scopes): <code>boards:read</code>, <code>boards:write</code>, <code>pins:read</code>, <code>pins:write</code>.</li>
+                        <li class="mb-1">Klik <strong>Generate token</strong> lalu salin string token (misal: <code>pina_...</code>) ke kolom Access Token.</li>
+                    </ol>
+
+                    <h6 class="fw-bold text-danger mb-2">2. Cara Mendapatkan Board Target ID:</h6>
+                    <ol class="mb-0">
+                        <li class="mb-1">Buka API Explorer di <a href="https://developers.pinterest.com/tools/api-explorer/" target="_blank" class="fw-bold">developers.pinterest.com/tools/api-explorer/</a>.</li>
+                        <li class="mb-1">Pilih endpoint <strong>GET /v5/boards</strong> dan tempelkan Access Token Anda.</li>
+                        <li class="mb-1">Klik <strong>Run</strong> -> Salin nilai angka <code>"id"</code> dari board yang ingin Anda jadikan tujuan posting.</li>
+                    </ol>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup Panduan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Tambah Akun -->
     <div class="modal fade" id="addAccountModal" tabindex="-1" aria-labelledby="addAccountModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -93,7 +130,7 @@
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title fw-bold" id="addAccountModalLabel"><i class="bi bi-pinterest text-danger me-1"></i> Hubungkan Akun Pinterest</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" data-bs-target="#addAccountModal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
