@@ -53,7 +53,11 @@
                                         </div>
                                     </div>
                                     <div class="col-12 mt-8">
-                                        <button type="submit" class="btn btn-primary w-full mb-4">Sign In <i class="bi bi-box-arrow-in-right ms-1 fs-16"></i></button>
+                                        <button type="submit" class="btn btn-primary w-full mb-3 py-2.5 rounded-pill fw-bold shadow-sm">Sign In <i class="bi bi-box-arrow-in-right ms-1 fs-16"></i></button>
+                                    </div>
+                                    <div class="col-12 text-center">
+                                        <span class="text-muted fs-13">Belum punya akun?</span>
+                                        <a href="{{ route('register') }}" class="link-primary fw-semibold fs-13 ms-1">Daftar sekarang</a>
                                     </div>
                                 </div>
                             </form>
