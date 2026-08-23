@@ -145,7 +145,7 @@
             <div class="d-flex align-items-center justify-content-between mb-3 px-1">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark">Laporan & Analitik Keuangan</h4>
-                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Analisis performa cashflow, grafik tren harian, dan mutasi</p>
+                    <p class="text-muted fs-12 mb-0 d-none d-sm-block">Analisis performa cashflow dan riwayat mutasi transaksi</p>
                 </div>
                 <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 btn-nowrap fw-semibold fs-12" onclick="window.print()">
                     <i class="bi bi-printer me-1"></i> Cetak / PDF
@@ -233,26 +233,59 @@
                 </div>
             </div>
 
-            <!-- 2. Visual Charts (ApexCharts: Tren Harian & Donut Kategori) -->
+            <!-- 2. Visual Perbandingan Rasio & Distribusi Kategori (Clean & Elegant) -->
             <div class="row g-3 mb-4">
-                <div class="col-12 col-lg-8">
-                    <div class="card border shadow-sm rounded-4 p-3 h-100">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <h6 class="fw-bold text-dark mb-0">Grafik Arus Kas Harian ({{ date('F Y', strtotime($selectedMonth . '-01')) }})</h6>
-                            <span class="badge bg-light text-muted fs-11">Pemasukan vs Pengeluaran</span>
+                <!-- Rasio Arus Kas -->
+                <div class="col-12 col-md-6">
+                    <div class="card border shadow-sm rounded-4 p-4 h-100">
+                        <h6 class="fw-bold text-dark mb-3">Rasio Pemasukan vs Pengeluaran</h6>
+                        @php
+                            $grandTotal = $totalIncome + $totalExpense;
+                            $incomeRatio = $grandTotal > 0 ? round(($totalIncome / $grandTotal) * 100) : 50;
+                            $expenseRatio = $grandTotal > 0 ? round(($totalExpense / $grandTotal) * 100) : 50;
+                        @endphp
+
+                        <div class="progress rounded-pill mb-3" style="height: 14px;">
+                            <div class="progress-bar bg-success rounded-start-pill" role="progressbar" style="width: {{ $incomeRatio }}%" title="Pemasukan {{ $incomeRatio }}%"></div>
+                            <div class="progress-bar bg-danger rounded-end-pill" role="progressbar" style="width: {{ $expenseRatio }}%" title="Pengeluaran {{ $expenseRatio }}%"></div>
                         </div>
-                        <div id="dailyCashflowChart" style="min-height: 260px;"></div>
+
+                        <div class="d-flex justify-content-between fs-13">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-circle-fill text-success fs-10"></i>
+                                <span class="text-muted">Pemasukan:</span>
+                                <strong class="text-success">{{ $incomeRatio }}%</strong>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-circle-fill text-danger fs-10"></i>
+                                <span class="text-muted">Pengeluaran:</span>
+                                <strong class="text-danger">{{ $expenseRatio }}%</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-4">
-                    <div class="card border shadow-sm rounded-4 p-3 h-100">
-                        <h6 class="fw-bold text-dark mb-2">Distribusi Pengeluaran</h6>
-                        @if (!empty($donutSeries) && count($donutSeries) > 0)
-                            <div id="categoryDonutChart" style="min-height: 260px;"></div>
+                <!-- Distribusi Kategori Pengeluaran -->
+                <div class="col-12 col-md-6">
+                    <div class="card border shadow-sm rounded-4 p-4 h-100">
+                        <h6 class="fw-bold text-dark mb-3">Distribusi Kategori Pengeluaran</h6>
+                        @if ($expenseCategories->count() > 0)
+                            <div class="d-flex flex-column gap-2">
+                                @foreach ($expenseCategories as $cat)
+                                    <div>
+                                        <div class="d-flex justify-content-between fs-12 mb-1">
+                                            <span class="fw-semibold text-dark">{{ $cat['category'] }} ({{ $cat['count'] }}x)</span>
+                                            <span class="fw-bold text-danger">Rp {{ number_format($cat['amount'], 0, ',', '.') }} ({{ $cat['percentage'] }}%)</span>
+                                        </div>
+                                        <div class="progress rounded-pill" style="height: 6px;">
+                                            <div class="progress-bar bg-danger rounded-pill" style="width: {{ $cat['percentage'] }}%"></div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         @else
-                            <div class="d-flex align-items-center justify-content-center h-100 text-muted fs-13 py-5">
-                                Belum ada data pengeluaran bulan ini.
+                            <div class="text-center text-muted fs-13 py-3">
+                                <i class="bi bi-info-circle me-1"></i> Belum ada pengeluaran pada bulan ini.
                             </div>
                         @endif
                     </div>
@@ -271,7 +304,7 @@
                             <div>
                                 <div class="d-flex align-items-center gap-2">
                                     <h6 class="fw-bold mb-0 text-dark fs-14">{{ $t->contributor_name ?? 'Transaksi' }}</h6>
-                                    <span class="badge {{ $t->type === 'expense' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success' }} fs-11">
+                                    <span class="badge {{ $t->type === 'expense' ? 'bg-danger-subtle text-danger' : ($t->type === 'income' ? 'bg-success-subtle text-success' : 'bg-info-subtle text-info') }} fs-11">
                                         {{ $t->type === 'income' ? 'Pemasukan' : ($t->type === 'expense' ? 'Pengeluaran' : 'Tabungan') }}
                                     </span>
                                 </div>
@@ -364,7 +397,6 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         @if (session('success'))
@@ -405,100 +437,6 @@
                     form.submit();
                 }
             });
-        }
-
-        // Initialize ApexCharts Daily Cashflow
-        const dailyDates = @json($dailyDates);
-        const incomeData = @json($dailyIncomeData);
-        const expenseData = @json($dailyExpenseData);
-
-        const optionsDaily = {
-            series: [{
-                name: 'Pemasukan',
-                data: incomeData
-            }, {
-                name: 'Pengeluaran',
-                data: expenseData
-            }],
-            chart: {
-                type: 'area',
-                height: 260,
-                toolbar: { show: false },
-                zoom: { enabled: false }
-            },
-            colors: ['#10B981', '#EF4444'],
-            dataLabels: { enabled: false },
-            stroke: { curve: 'smooth', width: 2 },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.4,
-                    opacityTo: 0.05,
-                    stops: [0, 90, 100]
-                }
-            },
-            xaxis: {
-                categories: dailyDates,
-                labels: {
-                    style: { fontSize: '10px' },
-                    rotate: -45,
-                    rotateAlways: false
-                }
-            },
-            yaxis: {
-                labels: {
-                    formatter: function (val) {
-                        return val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val);
-                    }
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: function (val) {
-                        return 'Rp ' + val.toLocaleString('id-ID');
-                    }
-                }
-            }
-        };
-
-        const chartDaily = new ApexCharts(document.querySelector("#dailyCashflowChart"), optionsDaily);
-        chartDaily.render();
-
-        // Initialize ApexCharts Category Donut
-        const donutLabels = @json($donutLabels);
-        const donutSeries = @json($donutSeries);
-
-        if (donutSeries && donutSeries.length > 0) {
-            const optionsDonut = {
-                series: donutSeries,
-                labels: donutLabels,
-                chart: {
-                    type: 'donut',
-                    height: 260
-                },
-                colors: ['#EF4444', '#F59E0B', '#3B82F6', '#10B981', '#8B5CF6', '#EC4899', '#6B7280'],
-                legend: {
-                    position: 'bottom',
-                    fontSize: '11px'
-                },
-                dataLabels: {
-                    enabled: true,
-                    formatter: function (val) {
-                        return Math.round(val) + "%";
-                    }
-                },
-                tooltip: {
-                    y: {
-                        formatter: function (val) {
-                            return 'Rp ' + val.toLocaleString('id-ID');
-                        }
-                    }
-                }
-            };
-
-            const chartDonut = new ApexCharts(document.querySelector("#categoryDonutChart"), optionsDonut);
-            chartDonut.render();
         }
     </script>
 @endsection
