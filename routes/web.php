@@ -8,6 +8,9 @@ use App\Http\Controllers\Admin\AppAccessController;
 use App\Http\Controllers\Apps\PosController;
 use App\Http\Controllers\Apps\PinterestAffiliateController;
 
+// Public Privacy Policy Route
+Route::view('/privacy-policy', 'privacy')->name('privacy');
+
 // Guest Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
