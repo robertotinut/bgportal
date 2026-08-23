@@ -15,6 +15,19 @@ use Illuminate\Support\Facades\Log;
 class FinanceController extends Controller
 {
     /**
+     * Authorize access to Finanza module.
+     */
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!Auth::check() || !Auth::user()->canAccessApp('finance')) {
+                return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki hak akses ke modul aplikasi Finanza. Silakan hubungi Administrator.');
+            }
+            return $next($request);
+        });
+    }
+
+    /**
      * Ensure default budgets & wallets exist for authenticated user.
      */
     protected function initUserData()

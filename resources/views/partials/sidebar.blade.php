@@ -24,38 +24,40 @@
                 </a>
             </li>
 
-            <!-- 2. Finanza Keuangan -->
-            <li class="pe-menu-title mt-2">
-                <span class="pe-menu-title-text text-uppercase">FINANZA KEGIATAN KAS</span>
-            </li>
+            <!-- 2. Finanza Keuangan (Hanya jika user punya akses) -->
+            @if (Auth::check() && Auth::user()->canAccessApp('finance'))
+                <li class="pe-menu-title mt-2">
+                    <span class="pe-menu-title-text text-uppercase">FINANZA KEGIATAN KAS</span>
+                </li>
 
-            <li class="pe-slide">
-                <a href="{{ route('apps.finance.index') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.index') ? 'active' : '' }}">
-                    <i class="bi bi-house-door pe-nav-icon text-indigo"></i>
-                    <span class="pe-nav-content">Beranda Keuangan</span>
-                </a>
-            </li>
+                <li class="pe-slide">
+                    <a href="{{ route('apps.finance.index') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.index') ? 'active' : '' }}">
+                        <i class="bi bi-house-door pe-nav-icon text-indigo"></i>
+                        <span class="pe-nav-content">Beranda Keuangan</span>
+                    </a>
+                </li>
 
-            <li class="pe-slide">
-                <a href="{{ route('apps.finance.bills') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.bills') ? 'active' : '' }}">
-                    <i class="bi bi-receipt pe-nav-icon text-indigo"></i>
-                    <span class="pe-nav-content">Tagihan & Langganan</span>
-                </a>
-            </li>
+                <li class="pe-slide">
+                    <a href="{{ route('apps.finance.bills') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.bills') ? 'active' : '' }}">
+                        <i class="bi bi-receipt pe-nav-icon text-indigo"></i>
+                        <span class="pe-nav-content">Tagihan & Langganan</span>
+                    </a>
+                </li>
 
-            <li class="pe-slide">
-                <a href="{{ route('apps.finance.reports') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.reports') ? 'active' : '' }}">
-                    <i class="bi bi-bar-chart-fill pe-nav-icon text-indigo"></i>
-                    <span class="pe-nav-content">Laporan & Mutasi</span>
-                </a>
-            </li>
+                <li class="pe-slide">
+                    <a href="{{ route('apps.finance.reports') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.reports') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-fill pe-nav-icon text-indigo"></i>
+                        <span class="pe-nav-content">Laporan & Mutasi</span>
+                    </a>
+                </li>
 
-            <li class="pe-slide">
-                <a href="{{ route('apps.finance.budgets') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.budgets') ? 'active' : '' }}">
-                    <i class="bi bi-pie-chart-fill pe-nav-icon text-indigo"></i>
-                    <span class="pe-nav-content">Anggaran & Tabungan</span>
-                </a>
-            </li>
+                <li class="pe-slide">
+                    <a href="{{ route('apps.finance.budgets') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.budgets') ? 'active' : '' }}">
+                        <i class="bi bi-pie-chart-fill pe-nav-icon text-indigo"></i>
+                        <span class="pe-nav-content">Anggaran & Tabungan</span>
+                    </a>
+                </li>
+            @endif
 
             <!-- 3. Administrasi Portal (Khusus Admin) -->
             @if (Auth::check() && Auth::user()->isAdmin())
