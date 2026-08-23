@@ -170,7 +170,7 @@
             color: #EF4444;
         }
 
-        /* Bottom Fixed Navigation Bar */
+        /* Mobile Fixed Bottom Navigation Bar (Hidden on Desktop!) */
         .finanza-mobile-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -182,10 +182,28 @@
             border-top: 1px solid #F1F5F9;
             box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
             z-index: 1030;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: space-around;
             padding: 0 10px;
+        }
+
+        @media (max-width: 991.98px) {
+            .finanza-mobile-bottom-nav {
+                display: flex !important;
+            }
+            .finanza-container {
+                padding-bottom: 90px !important;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .finanza-mobile-bottom-nav {
+                display: none !important;
+            }
+            .finanza-container {
+                padding-bottom: 30px !important;
+            }
         }
 
         .finanza-mobile-bottom-nav .nav-item-link {

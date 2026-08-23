@@ -101,13 +101,20 @@
                     </a>
                 </li>
 
-                <li class="pe-menu-title text-warning fw-bold mt-2">
+                <li class="pe-menu-title text-indigo fw-bold mt-2">
                     <i class="bi bi-wallet2 me-1"></i> Finanza Keuangan
                 </li>
 
                 <li class="pe-slide">
                     <a href="{{ route('apps.finance.index') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.index') ? 'active' : '' }}">
-                        <i class="bi bi-pie-chart-fill pe-nav-icon text-warning"></i>
+                        <i class="bi bi-house-door pe-nav-icon text-indigo"></i>
+                        <span class="pe-nav-content">Beranda Keuangan</span>
+                    </a>
+                </li>
+
+                <li class="pe-slide">
+                    <a href="{{ route('apps.finance.budgets') }}" class="pe-nav-link {{ request()->routeIs('apps.finance.budgets') ? 'active' : '' }}">
+                        <i class="bi bi-pie-chart-fill pe-nav-icon text-indigo"></i>
                         <span class="pe-nav-content">Anggaran & Tabungan</span>
                     </a>
                 </li>
